@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=0">
+    <title>查询邮寄地址</title>
+    <link href="https://cdn.bootcss.com/weui/0.4.2/style/weui.min.css" rel="stylesheet">
+</head>
+<body>
+	<div id="loadingToast" class="weui_loading_toast" style="display: none;">
+	  <div class="weui_mask_transparent"></div>
+	  <div class="weui_toast">
+	    <div class="weui_loading">
+	      <!-- :) -->
+	      <div class="weui_loading_leaf weui_loading_leaf_0"></div>
+	      <div class="weui_loading_leaf weui_loading_leaf_1"></div>
+	      <div class="weui_loading_leaf weui_loading_leaf_2"></div>
+	      <div class="weui_loading_leaf weui_loading_leaf_3"></div>
+	      <div class="weui_loading_leaf weui_loading_leaf_4"></div>
+	      <div class="weui_loading_leaf weui_loading_leaf_5"></div>
+	      <div class="weui_loading_leaf weui_loading_leaf_6"></div>
+	      <div class="weui_loading_leaf weui_loading_leaf_7"></div>
+	      <div class="weui_loading_leaf weui_loading_leaf_8"></div>
+	      <div class="weui_loading_leaf weui_loading_leaf_9"></div>
+	      <div class="weui_loading_leaf weui_loading_leaf_10"></div>
+	      <div class="weui_loading_leaf weui_loading_leaf_11"></div>
+	    </div>
+	    <p class="weui_toast_content">数据加载中</p>
+	  </div>
+	</div>
+	<div class="weui_cells">
+		<div class="weui_cell weui_cell_select weui_select_after">
+	    <div class="weui_cell_hd">
+	    	<label for="" class="weui_label">省市</label>
+	    </div>
+	    <div class="weui_cell_bd weui_cell_primary">
+	      <select class="weui_select" name="select2" id="province" onchange="setUnit()">
+	        <option value="北京市">北京市</option> 
+	        <option value="吉林省">吉林省</option> 
+	        <option value="四川省">四川省</option> 
+	        <option value="天津市">天津市</option> 
+	        <option value="山西省">山西省</option> 
+	        <option value="广东省">广东省</option> 
+	        <option value="江苏省">江苏省</option> 
+	        <option value="江西省">江西省</option> 
+	        <option value="河南省">河南省</option> 
+	        <option value="浙江省">浙江省</option> 
+	        <option value="海南省">海南省</option> 
+	        <option value="湖北省">湖北省</option> 
+	        <option value="湖南省">湖南省</option> 
+	        <option value="福建省">福建省</option> 
+	        <option value="陕西省">陕西省</option> 
+	        <option value="云南省">云南省</option> 
+	        <option value="黑龙江省">黑龙江省</option>
+	        <option value="宁夏回族自治区">宁夏回族自治区</option> 
+	        <option value="广西壮族自治区">广西壮族自治区</option> 
+	        <option value="内蒙古自治区">内蒙古自治区</option> 
+	        <option value="新疆维吾尔族自治区">新疆维吾尔族自治区</option> 
+	      </select>
+	    </div>
+		</div>
+	</div>
+	<div class="weui_cells">
+		<div class="weui_cell weui_cell_select weui_select_after">
+	    <div class="weui_cell_hd">
+	    	<label for="" class="weui_label">派遣单位</label>
+	    </div>
+	    <div class="weui_cell_bd weui_cell_primary">
+	      <select class="weui_select" name="select2" id="unit-option" onchange="setOtherInfo()">
+	      </select>
+	    </div>
+		</div>
+	</div>
+	<div class="weui_cells">
+		<div class="weui_cell weui_cell_select weui_select_after">
+	    <div class="weui_cell_hd">
+	    	<label for="" class="weui_label">主管部门</label>
+	    </div>
+	    <div class="weui_cell_bd weui_cell_primary">
+        <select class="weui_select" name="select2" id="depart-option" onchange="setOtherInfo()">
+        </select>
+	    </div>
+		</div>
+	</div>
+	<div class="weui_cells">
+		<div class="weui_cell weui_cell_select weui_select_after">
+      <div class="weui_cell_hd">
+      	<label for="" class="weui_label">单位电话</label>
+      </div>
+      <div class="weui_cell_bd weui_cell_primary">
+        <select class="weui_select" name="select2" id="phone-option" onchange="setOtherInfo()">
+        </select>
+      </div>
+		</div>
+	</div>
+	<div class="weui_cells">
+		<div class="weui_cell weui_cell_select weui_select_after">
+      <div class="weui_cell_hd">
+      	<label for="" class="weui_label">单位地址</label>
+      </div>
+      <div class="weui_cell_bd weui_cell_primary">
+        <select class="weui_select" name="select2" id="address-option">
+        </select>
+      </div>
+		</div>
+	</div>
+</body>
+
+<script type="text/javascript">
+	var loadingToast = document.getElementById('loadingToast');
+	var failToast = document.getElementById('failToast');
+	
+	function fetch(surl, callback) {
+		var xhr = new XMLHttpRequest(); //生成XMLHttpRequest对象 
+
+		xhr.onreadystatechange = function() { 
+		  //当readyState==4 status==200表示响应成功 
+		  if (xhr.readyState == 4) {
+				hideLoading();
+
+				if (xhr.status == 200) {
+				  var data = xhr.responseText;
+				  callback(JSON.parse(data));
+				} else {
+					alert("数据加载失败，请重新尝试");
+				}
+		  }
+		}
+
+		//false 为同步
+		xhr.open("get", surl, true);
+		xhr.send();
+		showLoading();
+	}
+
+	function setUnit() {
+		var objS = document.getElementById("province");
+		var province = objS.options[objS.selectedIndex].value;
+		fetch("/api/address/province/" + province, data => {
+			if (data.code == 10000) {
+				var options = "";
+				data.data.map(function(address) {
+					options += "<option value=\"" + address.unit + "\">" + address.unit + "</option>";
+				})
+				document.getElementById("unit-option").innerHTML = options;
+				document.getElementById("depart-option").innerHTML = "";
+				document.getElementById("phone-option").innerHTML = "";
+				document.getElementById("address-option").innerHTML = "";
+				setOtherInfo();
+			} else {
+				alert(data.error);
+			}
+		})
+	}
+
+	function setOtherInfo() {
+		var objS = document.getElementById("unit-option");
+		if (objS.selectedIndex == -1) {
+			return ;
+		}
+		var unit = objS.options[objS.selectedIndex].value;
+
+		fetch("/api/address/unit/" + unit, data => {
+			if (data.code == 10000) {
+				var departOptions = "",
+						phoneOptions = "",
+						addressOptions = "";
+				data.data.map(function(address) {
+					departOptions += "<option value=\"" + address.depart + "\">" + address.depart + "</option>";
+					phoneOptions += "<option value=\"" + address.phone + "\">" + address.phone + "</option>";
+					addressOptions += "<option value=\"" + address.address + "\">" + address.address + "</option>";
+				})
+				document.getElementById("depart-option").innerHTML = departOptions;
+				document.getElementById("phone-option").innerHTML = phoneOptions;
+				document.getElementById("address-option").innerHTML = addressOptions;
+			} else {
+				alert(data.error);
+			}
+		})
+	}
+
+	function showLoading() {
+		loadingToast.style.display = "";
+	}
+
+	function hideLoading() {
+		loadingToast.style.display = "none";
+	}
+
+	setUnit();
+</script>
+</html>
