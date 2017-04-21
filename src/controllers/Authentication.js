@@ -26,7 +26,9 @@ exports.login = (req, res, next) => {
 					console.log(err);
 					res.json({code: 10404, error: '未知错误'});
 				} else {
-					res.json({code: 10000, error: '', data: user.name});
+					res.json({code: 10000, error: '', data: {
+						username: user.name
+					}});
 				}
 			})
 		})
@@ -99,9 +101,6 @@ exports.auth = (req, res, next) => {
 		if (!token) {
 			return res.json({code: 10200, error: 'token error'});
 		}
-		console.log(token);
-		console.log(token.expire);
-		console.log(time);
 		if (token.used || token.expire < time) {
 			return res.json({code: 10200, error: '登录超时,请重新登录'});
 		}
@@ -117,7 +116,7 @@ exports.auth = (req, res, next) => {
 				if (err) {
 					return res.json({code: 10500, error: 'server error'});
 				}
-				req.user = token.user;
+				req.user = user;
 				next();
 			})
 		})

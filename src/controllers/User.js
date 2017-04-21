@@ -1,5 +1,11 @@
 import User from '../models/User'
 
+exports.userInfo = (req, res, next) => {
+	res.json({code: 10000, error: '', data: {
+		username: req.user.name
+	}})
+}
+
 exports.save = (req, res, next) => {
 	const {name, password} = req.body;
 	// check params;

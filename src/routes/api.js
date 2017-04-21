@@ -9,8 +9,10 @@ import Address from '../controllers/Address'
 let router = express.Router();
 
 // student
-router.route('/address/query/:stuNum')
-	.get(Address.query)
+router.route('/address/province/:province')
+	.get(Address.queryUnit)
+router.route('/address/unit/:unit')
+	.get(Address.queryByUnit)
 
 // admin
 router.route('/register')
@@ -19,6 +21,8 @@ router.route('/login')
 	.post(Authentication.login)
 router.route('/logout')
 	.get(Authentication.logout)
+router.route('/user')
+	.get(Authentication.auth, User.userInfo)
 
 router.route('/address')
 	.post(Authentication.auth, Address.save)

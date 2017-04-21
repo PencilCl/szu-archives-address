@@ -17,9 +17,6 @@ let AddressSchema = new Schema({
 	},
 	address: {
 		type: String
-	},
-	stuNum: {
-		type: String
 	}
 })
 

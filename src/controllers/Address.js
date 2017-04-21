@@ -1,16 +1,24 @@
 import Address from '../models/Address'
 
-exports.query = (req, res, next) => {
-	const stuNum = req.params.stuNum;
+exports.queryUnit = (req, res, next) => {
+	const province = req.params.province;
 	
-	Address.findOne({stuNum: stuNum}, {_id: 0, __v: 0}, (err, address) => {
+	Address.find({province: province}, {_id: 0, unit: 1}, (err, addresses) => {
 		if (err) {
 			return res.json({code: 10500, error: 'server error'});
 		}
-		if (!address) {
-			return res.json({code: 10200, error: '无此学号记录'});
+		res.json({code: 10000, error: '', data: addresses});
+	})
+}
+
+exports.queryByUnit = (req, res, next) => {
+	const unit = req.params.unit;
+
+	Address.find({unit: unit}, {_id: 0, depart: 1, phone: 1, address: 1}, (err, addresses) => {
+		if (err) {
+			return res.json({code: 10500, error: 'server error'});
 		}
-		res.json({code: 10000, error: '', data: address});
+		res.json({code: 10000, error: '', data: addresses});
 	})
 }
 
@@ -28,24 +36,32 @@ exports.index = (req, res, next) => {
 }
 
 exports.save = (req, res, next) => {
-	const {stuNum, province, unit, depart, phone, address} = req.body;
+	const {province, unit, depart, phone, address} = req.body;
 	// check parmas;
-	if (!stuNum || !province || !unit || !depart || !phone || !address) {
+	if (!province || !unit || !depart || !phone || !address) {
 		return res.json({code: 10200, error: 'params error'});
 	}
 
-	let objAddress = new Address();
-	objAddress.stuNum = stuNum;
-	objAddress.province = province;
-	objAddress.unit = unit;
-	objAddress.depart = depart;
-	objAddress.phone = phone;
-	objAddress.address = address;
-	objAddress.save(err => {
+	Address.findOne({province: province, unit: unit, depart: depart, phone: phone, address: address}, (err, address) => {
 		if (err) {
 			return res.json({code: 10500, error: 'server error'});
 		}
-		res.json({code: 10000, error: ''});
+		if (address) {
+			return res.json({code: 10200, error: "记录已存在"});
+		}
+
+		let objAddress = new Address();
+		objAddress.province = province;
+		objAddress.unit = unit;
+		objAddress.depart = depart;
+		objAddress.phone = phone;
+		objAddress.address = address;
+		objAddress.save((err, product) => {
+			if (err) {
+				return res.json({code: 10500, error: 'server error'});
+			}
+			res.json({code: 10000, error: '', data: product._id});
+		})
 	})
 }
 
@@ -75,12 +91,11 @@ exports.update = (req, res, next) => {
 			resolve(address);
 		})
 	}).then(objAddress => {
-		const {stuNum, province, unit, depart, phone, address} = req.body;
+		const {province, unit, depart, phone, address} = req.body;
 		// check parmas;
-		if (!stuNum || !province || !unit || !depart || !phone || !address) {
+		if (!province || !unit || !depart || !phone || !address) {
 			return res.json({code: 10200, error: 'params error'});
 		}
-		objAddress.stuNum = stuNum;
 		objAddress.province = province;
 		objAddress.unit = unit;
 		objAddress.depart = depart;

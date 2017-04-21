@@ -1,7 +1,7 @@
 {
-  "name": "node-backend-boilerplate",
+  "name": "szu-archives-address",
   "version": "1.0.0",
-  "description": "backend boilerplate based on node",
+  "description": "szu-archives-address",
   "main": "server.js",
   "scripts": {
     "start": "DEBUG=saa:server DEBUG_COLORS=1 node server.js",

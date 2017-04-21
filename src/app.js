@@ -25,7 +25,7 @@ app.use(logger('dev'));
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
 // static server
-app.use('/public', express.static(path.join(__dirname, '../public/')));
+app.use('/admin', express.static(path.join(__dirname, '../front-end/admin/public/')));
 
 //设置跨域访问
 app.all('/api/*', function(req, res, next) {
@@ -40,11 +40,20 @@ app.all('/api/*', function(req, res, next) {
 
 app.use('/api', apiRoutes);
 
+app.get('/admin/*', function(req, res) {
+    res.sendFile(path.resolve(__dirname, '../front-end/admin/public/index.html'));
+})
+
+app.get('/', function(req, res) {
+    res.sendFile(path.resolve(__dirname, '../front-end/index/index.html'));
+})
+
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
-    var err = new Error('Not Found');
-    err.status = 404;
-    next(err);
+    res.status(404).send('Sorry, we cannot find that!');
+    // var err = new Error('Not Found');
+    // err.status = 404;
+    // next(err);
 });
 
 if (app.get('env') === 'dev') {
