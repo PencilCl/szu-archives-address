@@ -76,10 +76,10 @@ class PersonInfo extends Component {
 				
 				{user.login ? 
 				<HoverComponent style={styles.logout} hoverStyle={styles.logoutHovered}>
-					<Link id="logout" onTouchTap={logout}>logout</Link>
+					<Link id="logout" onTouchTap={logout}>退出</Link>
 				</HoverComponent> :
 				<HoverComponent style={styles.login} hoverStyle={styles.loginHovered}>
-					<Link id="login" onTouchTap={login}>login</Link>
+					<Link id="login" onTouchTap={login}>登录</Link>
 				</HoverComponent>
 				}
 			</li>

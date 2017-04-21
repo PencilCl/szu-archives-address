@@ -47,7 +47,9 @@ class Admin extends Component {
 					<Login {...loginState} onChangeUserName={change_username} onChangePassword={change_password} handleLogin={login} handleCloseLogin={hide_login}/>
 					<SideBar login={show_login} logout={logout} user={user} />
 					<div style={styles.container}>
-						{this.props.children}
+						{React.cloneElement(this.props.children, 
+							{user: user})
+						}
 					</div>
 				</div>
 			</MuiThemeProvider>

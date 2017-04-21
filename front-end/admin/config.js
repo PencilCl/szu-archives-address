@@ -4,4 +4,5 @@ module.exports = {
 	loginUrl: '/api/login',
 	logoutUrl: '/api/logout',
 	userInfoUrl: '/api/user',
+	addressUrl: '/api/address'
 }

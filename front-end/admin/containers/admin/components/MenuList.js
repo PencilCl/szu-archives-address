@@ -18,7 +18,7 @@ class MenuList extends Component {
 		return (
 			<ul style={styles.listGroup} id="nav-list">
 				<PersonInfo login={login} logout={logout} user={user} />
-				<Menu focus={true} link="/admin/Address" icon="fa-home" description="Address" />
+				<Menu focus={true} link="/admin/Address" icon="fa-home" description="地址" />
 			</ul>
 		)
 	}

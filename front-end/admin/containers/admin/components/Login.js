@@ -24,7 +24,8 @@ class Login extends Component {
 
 		return (
 			<Dialog
-				title="登录档案邮寄查询后台管理"
+				title="档案邮寄查询后台管理 - 登录"
+        autoScrollBodyContent={true}
 				actions={actions}
 				modal={true}
 				open={open}

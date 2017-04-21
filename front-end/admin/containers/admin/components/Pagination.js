@@ -1,13 +1,44 @@
 import React, { Component, PropTypes } from 'react'
 
-const paginationWrapperStyle = {
-	textAlign: 'center',
-	overflow: 'hidden'
-}
+import HoverComponent from './HoverComponent'
 
-const paginationStyle = {
-	display: 'inline-block',
-	margin: '10px 0px'
+const styles = {
+	pagination: {
+		display: 'inline-block',
+		overflow: 'hidden'
+	},
+	paginationLi: {
+		float: 'left',
+		listStyle: 'none',
+		fontSize: '1em',
+		height: '1.5em',
+		margin: '0px 0.5em',
+		cursor: 'pointer',
+		color: '#7fa6c1',
+		lineHeight: '1.5em'
+	},
+	paginationLiHover: {
+		textDecoration: 'underline'
+	},
+	currentPage: {
+		float: 'left',
+		listStyle: 'none',
+		fontSize: '1em',
+		height: '1.5em',
+		margin: '0px 0.5em',
+		cursor: 'pointer',
+		color: '#7fa6c1',
+		lineHeight: '1.5em',
+		color: 'black',
+		cursor: 'default'
+	},
+	currenetPageHover: {
+		textDecoration: 'none'
+	},
+	paginationWrapperStyle: {
+		textAlign: 'center',
+		overflow: 'hidden'
+	}
 }
 
 class Pagination extends Component {
@@ -56,10 +87,12 @@ class Pagination extends Component {
 	render() {
 		let pageList = this._buildPageList();
 		return (
-			<div style={paginationWrapperStyle}>
-				<ul className="pagination">
+			<div style={styles.paginationWrapperStyle}>
+				<ul style={styles.pagination}>
 					{pageList.map((page, index) => (
-					<li key={index} onClick={page.current ? null : (event) => this._changePage(page.id, event)} className={page.current ? "current-page" : ""}>{page.name}</li>
+						<HoverComponent key={index} style={page.current ? styles.currentPage : styles.paginationLi} hoverStyle={page.current ? styles.currenetPageHover : styles.paginationLiHover}>
+							<li onClick={page.current ? null : (event) => this._changePage(page.id, event)}>{page.name}</li>
+						</HoverComponent>
 					))}
 				</ul>
 			</div>
