@@ -23,16 +23,12 @@ exports.queryByUnit = (req, res, next) => {
 }
 
 exports.index = (req, res, next) => {
-	const {row, page} = req.params;
-	Address.find({})
-		.skip((page - 1) * row)
-		.limit(row)
-		.exec((err, address) => {
-			if (err) {
-				return res.json({code: 10404, error: 'params error'});
-			}
-			res.json({code: 10000, data: address});
-		})
+	Address.find({}, (err, address) => {
+		if (err) {
+			return res.json({code: 10404, error: 'params error'});
+		}
+		res.json({code: 10000, data: address});
+	})
 }
 
 exports.save = (req, res, next) => {
@@ -42,11 +38,11 @@ exports.save = (req, res, next) => {
 		return res.json({code: 10200, error: 'params error'});
 	}
 
-	Address.findOne({province: province, unit: unit, depart: depart, phone: phone, address: address}, (err, address) => {
+	Address.findOne({province: province, unit: unit, depart: depart, phone: phone, address: address}, (err, addressObj) => {
 		if (err) {
 			return res.json({code: 10500, error: 'server error'});
 		}
-		if (address) {
+		if (addressObj) {
 			return res.json({code: 10200, error: "记录已存在"});
 		}
 
@@ -103,6 +99,7 @@ exports.update = (req, res, next) => {
 		objAddress.address = address;
 		objAddress.save(err => {
 			if (err) {
+				console.log(err);
 				return res.json({code: 10500, error: 'server error'});
 			}
 			res.json({code: 10000, error: ''});
