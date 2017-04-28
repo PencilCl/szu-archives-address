@@ -57,6 +57,7 @@ let change_province = (state, value) => {
 	let newState = generate_new_state(state);
 	newState.province.current = value;
 	newState.unit.current = 0;
+	newState.depart.current = 0;
 	if (value !== 0) {
 		newState.unit.items = ['选择派遣单位'];
 		let tmp = {};
