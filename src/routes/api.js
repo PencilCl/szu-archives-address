@@ -9,10 +9,8 @@ import Address from '../controllers/Address'
 let router = express.Router();
 
 // student
-router.route('/address/province/:province')
-	.get(Address.queryUnit)
-router.route('/address/unit/:unit')
-	.get(Address.queryByUnit)
+router.route('/address/all')
+	.get(Address.queryAll)
 
 // admin
 router.route('/register')
@@ -29,6 +27,13 @@ router.route('/address')
 	.post(Authentication.auth, Address.save)
 router.route('/address/count')
 	.get(Authentication.auth, Address.count)
+router.route('/address/all')
+	.delete(Authentication.auth, Address.deleteAll)
+router.route('/address/manual')
+	.delete(Authentication.auth, Address.deleteManual)
+router.route('/address/import')
+	.post(Address.import)
+	.delete(Authentication.auth, Address.deleteImport)
 router.route('/address/:id')
 	.get(Authentication.auth, Address.read)
 	.put(Authentication.auth, Address.update)

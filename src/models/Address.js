@@ -6,17 +6,22 @@ let AddressSchema = new Schema({
 	province: {
 		type: String
 	},
-	unit: {
+	city: {
 		type: String
 	},
 	depart: {
 		type: String
 	},
-	phone: {
-		type: String
-	},
 	address: {
 		type: String
+	},
+	autoImport: {
+		type: Boolean,
+		default: true
+	},
+	modified: {
+		type: Boolean,
+		default: false
 	}
 })
 

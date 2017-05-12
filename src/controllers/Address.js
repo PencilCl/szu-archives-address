@@ -1,9 +1,13 @@
 import Address from '../models/Address'
 
-exports.queryUnit = (req, res, next) => {
+import fs from 'fs'
+import formidable from 'formidable'
+import xlsx from 'node-xlsx'
+
+exports.queryAll = (req, res, next) => {
 	const province = req.params.province;
 	
-	Address.find({province: province}, {_id: 0, unit: 1}, (err, addresses) => {
+	Address.find({}, {_id: 0, autoImport: 0}, (err, addresses) => {
 		if (err) {
 			return res.json({code: 10500, error: 'server error'});
 		}
@@ -11,15 +15,38 @@ exports.queryUnit = (req, res, next) => {
 	})
 }
 
-exports.queryByUnit = (req, res, next) => {
-	const unit = req.params.unit;
+exports.import = (req, res, next) => {
+	// 获取上传的excel文件
+  let form = new formidable.IncomingForm();
+  form.parse(req, (err, fields, file) => {
+  	if (err) {
+  		return res.json({code: 10500, error: '解析上传文件失败'});
+  	}
+  	file = file.excel;
+  	if (!file) {
+  		return res.json({code: 10200, error: '参数错误'});
+  	}
+  	let tmpPath = file.path;
 
-	Address.find({unit: unit}, {_id: 0, depart: 1, phone: 1, address: 1}, (err, addresses) => {
-		if (err) {
-			return res.json({code: 10500, error: 'server error'});
-		}
-		res.json({code: 10000, error: '', data: addresses});
-	})
+  	// 处理excel文件数据
+  	let xmlData = xlsx.parse(tmpPath);
+  	let sheet1 = xmlData[0].data;
+  	// 第一行为表头信息，从第二行开始获取数据
+  	// 省份	地区	派遣单位主管部门	派遣单位名称	派遣单位地址	派遣单位邮编
+  	for (let i = 1; i < sheet1.length; ++i) {
+			let data = sheet1[i];
+			if (data[0] == '') {
+				continue;
+			}
+			let objAddress = new Address();
+			objAddress.province = data[0];
+			objAddress.city = data[1];
+			objAddress.depart = data[2];
+			objAddress.address = data[4];
+			objAddress.save((err) => {});
+  	}
+  	res.json({code: 10000, error: ''});
+  });
 }
 
 exports.index = (req, res, next) => {
@@ -32,13 +59,13 @@ exports.index = (req, res, next) => {
 }
 
 exports.save = (req, res, next) => {
-	const {province, unit, depart, phone, address} = req.body;
+	const {province, city, depart, phone, address} = req.body;
 	// check parmas;
-	if (!province || !unit || !depart || !phone || !address) {
+	if (!province || !city || !depart || !phone || !address) {
 		return res.json({code: 10200, error: 'params error'});
 	}
 
-	Address.findOne({province: province, unit: unit, depart: depart, phone: phone, address: address}, (err, addressObj) => {
+	Address.findOne({province: province, city: city, depart: depart, phone: phone, address: address}, (err, addressObj) => {
 		if (err) {
 			return res.json({code: 10500, error: 'server error'});
 		}
@@ -48,10 +75,11 @@ exports.save = (req, res, next) => {
 
 		let objAddress = new Address();
 		objAddress.province = province;
-		objAddress.unit = unit;
+		objAddress.city = city;
 		objAddress.depart = depart;
 		objAddress.phone = phone;
 		objAddress.address = address;
+		objAddress.autoImport = false;
 		objAddress.save((err, product) => {
 			if (err) {
 				return res.json({code: 10500, error: 'server error'});
@@ -87,16 +115,17 @@ exports.update = (req, res, next) => {
 			resolve(address);
 		})
 	}).then(objAddress => {
-		const {province, unit, depart, phone, address} = req.body;
+		const {province, city, depart, phone, address} = req.body;
 		// check parmas;
-		if (!province || !unit || !depart || !phone || !address) {
+		if (!province || !city || !depart || !phone || !address) {
 			return res.json({code: 10200, error: 'params error'});
 		}
 		objAddress.province = province;
-		objAddress.unit = unit;
+		objAddress.city = city;
 		objAddress.depart = depart;
 		objAddress.phone = phone;
 		objAddress.address = address;
+		objAddress.modified = true;
 		objAddress.save(err => {
 			if (err) {
 				console.log(err);
@@ -114,6 +143,33 @@ exports.delete = (req, res, next) => {
 	Address.remove({_id: id}, err => {
 		if (err) {
 			return res.json({code: 10200, error: 'params error'});
+		}
+		res.json({code: 10000, error: ''});
+	})
+}
+
+exports.deleteImport = (req, res, next) => {
+	Address.remove({autoImport: true}, err => {
+		if (err) {
+			return res.json({code: 10200, error: '删除失败'});
+		}
+		res.json({code: 10000, error: ''});
+	})
+}
+
+exports.deleteAll = (req, res, next) => {
+	Address.remove({}, err => {
+		if (err) {
+			return res.json({code: 10200, error: '删除失败'});
+		}
+		res.json({code: 10000, error: ''});
+	})
+}
+
+exports.deleteManual = (req, res, next) => {
+	Address.remove({autoImport: false}, err => {
+		if (err) {
+			return res.json({code: 10200, error: '删除失败'});
 		}
 		res.json({code: 10000, error: ''});
 	})
