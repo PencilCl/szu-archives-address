@@ -4,8 +4,10 @@ import {
 } from './../../../config.js'
 
 const CHANGE_PROVINCE = "CHANGE_PROVINCE"
-const CHANGE_UNIT = "CHANGE_UNIT"
+const CHANGE_CITY = "CHANGE_CITY"
 const CHANGE_DEPART = "CHANGE_DEPART"
+const FILTER_MANUAL = "FILTER_MANUAL"
+const FILTER_MODIFIED = "FILTER_MODIFIED"
 
 const UPDATE_DATA = "UPDATE_DATA"
 
@@ -39,9 +41,9 @@ export function changeProvince(event, index, value) {
 	}
 }
 
-export function changeUnit(event, index, value) {
+export function changeCity(event, index, value) {
 	return {
-		type: CHANGE_UNIT,
+		type: CHANGE_CITY,
 		data: value
 	}
 }
@@ -50,6 +52,20 @@ export function changeDepart(event, index, value) {
 	return {
 		type: CHANGE_DEPART,
 		data: value
+	}
+}
+
+export function filter_manual(event, isInputChecked) {
+	return {
+		type: FILTER_MANUAL,
+		data: isInputChecked
+	}
+}
+
+export function filter_modified(event, isInputChecked) {
+	return {
+		type: FILTER_MODIFIED,
+		data: isInputChecked
 	}
 }
 
@@ -77,7 +93,7 @@ export function add_record() {
 	      "Content-type": "application/x-www-form-urlencoded; charset=UTF-8",
 	      token: token
 			},
-			body: `province=${form.province}&unit=${form.unit}&depart=${form.depart}&phone=${form.phone}&address=${form.address}`
+			body: `province=${form.province}&city=${form.city}&depart=${form.depart}&phone=${form.phone}&address=${form.address}`
 		}).then(response => {
 			if (response.ok) {
 				response.json().then(data => {
@@ -89,10 +105,11 @@ export function add_record() {
 							data: {
 								_id: data,
 								province: form.province,
-								unit: form.unit,
+								city: form.city,
 								depart: form.depart,
-								phone: form.phone,
-								address: form.address
+								address: form.address,
+								autoImport: false,
+								modified: false
 							}
 						});
 					} else {
@@ -199,13 +216,14 @@ export function edit_record() {
 	      "Content-type": "application/x-www-form-urlencoded; charset=UTF-8",
 	      token: token
 			},
-			body: `province=${form.province}&unit=${form.unit}&depart=${form.depart}&phone=${form.phone}&address=${form.address}`
+			body: `province=${form.province}&city=${form.city}&depart=${form.depart}&phone=${form.phone}&address=${form.address}`
 		}).then(response => {
 			if (response.ok) {
 				response.json().then(data => {
 					if (data.code == 10000) {
 						data = data.data;
 						dispatch(show_snackbar("修改信息成功"));
+						form.modified = true;
 						dispatch({
 							type: EDIT_RECORD,
 							data: form
@@ -223,7 +241,7 @@ export function edit_record() {
 	}
 }
 
-export function fetch_address_data() {
+exports.fetch_address_data = () => {
 	return (dispatch, getState) => {
 		dispatch(show_snackbar("正在获取数据..."));
 		let token = window.localStorage.getItem("token");
@@ -254,5 +272,43 @@ export function fetch_address_data() {
 		}, err => {
 			dispatch(show_snackbar("连接服务器失败"));
 		})
+	}
+};
+
+export function upload_xls(e, fetch_address_data) {
+	return (dispatch, getState) => {
+		let file = e.target.files[0];
+		e.target.value = "";
+    let supportedTypes = ['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'];
+    if (file && supportedTypes.indexOf(file.type) >= 0) {
+    	dispatch(show_snackbar("正在添加"));
+    	let token = window.localStorage.getItem('token');
+    	let formData = new FormData();
+    	formData.append('excel', file);
+    	window.fetch(`${baseUrl}${addressUrl}/import`, {
+    		method: 'POST',
+    		headers: {
+    			"token": token
+    		},
+    		body: formData
+    	}).then(res => {
+    		if (res.ok) {
+    			res.json().then(data => {
+    				if (data.code != 10000) {
+    					dispatch(show_snackbar(data.error));
+    				} else {
+    					dispatch(show_snackbar("导入成功"));
+    					fetch_address_data();
+    				}
+    			})
+    		} else {
+    			dispatch(show_snackbar("请求失败"));
+    		}
+    	}, err => {
+    		dispatch(show_snackbar("连接服务器失败"));
+    	})
+    } else {
+    	dispatch(show_snackbar("格式错误"));
+    }
 	}
 }

@@ -35,6 +35,18 @@ class AddressTable extends Component {
 		}
 	}
 
+	componentWillReceiveProps(nextProps) {
+		const {addresses} = nextProps;
+		const {currentPage} = this.state;
+
+		let totlePage = Math.ceil(addresses.length / ROWS);
+		if (totlePage > 0 && currentPage > totlePage) {
+			this.setState({
+				currentPage: totlePage
+			})
+		}
+	}
+
 	render() {
 		const {addresses} = this.props;
 		const {currentPage} = this.state;
@@ -50,9 +62,8 @@ class AddressTable extends Component {
 			    >
 			      <TableRow>
 			        <TableHeaderColumn width={60}>省份</TableHeaderColumn>
-			        <TableHeaderColumn>派遣单位</TableHeaderColumn>
-			        <TableHeaderColumn>部门</TableHeaderColumn>
-			        <TableHeaderColumn>电话</TableHeaderColumn>
+			        <TableHeaderColumn>市/区</TableHeaderColumn>
+			        <TableHeaderColumn>主管部门</TableHeaderColumn>
 			        <TableHeaderColumn>地址</TableHeaderColumn>
 			        <TableHeaderColumn width={80}>操作</TableHeaderColumn>
 			        <TableHeaderColumn width={80}>删除</TableHeaderColumn>
@@ -65,9 +76,8 @@ class AddressTable extends Component {
 			    {addresses.map((address, index) => (index >= (currentPage - 1) * ROWS && index < currentPage * ROWS) ? 
 			    	<TableRow key={index}>
 			    	  <TableRowColumn width={60}>{address.province}</TableRowColumn>
-			    	  <TableRowColumn>{address.unit}</TableRowColumn>
+			    	  <TableRowColumn>{address.city}</TableRowColumn>
 			    	  <TableRowColumn>{address.depart}</TableRowColumn>
-			    	  <TableRowColumn>{address.phone}</TableRowColumn>
 			    	  <TableRowColumn>{address.address}</TableRowColumn>
 			    	  <TableRowColumn width={80}><FlatButton onTouchTap={this.handleEdit(address._id)} label="查看/编辑" primary={true} /></TableRowColumn>
 			    	  <TableRowColumn width={80}><FlatButton onTouchTap={this.handleDelete(address._id)} label="删除" secondary={true} /></TableRowColumn>

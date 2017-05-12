@@ -7,10 +7,10 @@ const initialState = {
 			'选择省份'
 		]
 	},
-	unit: {
+	city: {
 		current: 0,
 		items: [
-			'选择派遣单位'
+			'选择市/区'
 		]
 	},
 	depart: {
@@ -19,13 +19,14 @@ const initialState = {
 			'选择部门'
 		]
 	},
+	filterManual: false,
+	filterModified: false,
 	addRecord: {
 		show: false,
 		form: {
 			province: '',
-			unit: '',
+			city: '',
 			depart: '',
-			phone: '',
 			address: ''
 		}
 	},
@@ -38,9 +39,8 @@ const initialState = {
 		form: {
 			_id: '',
 			province: '',
-			unit: '',
+			city: '',
 			depart: '',
-			phone: '',
 			address: ''
 		}
 	},
@@ -56,30 +56,30 @@ let generate_new_state = (state) => {
 let change_province = (state, value) => {
 	let newState = generate_new_state(state);
 	newState.province.current = value;
-	newState.unit.current = 0;
+	newState.city.current = 0;
 	newState.depart.current = 0;
 	if (value !== 0) {
-		newState.unit.items = ['选择派遣单位'];
+		newState.city.items = ['选择市/区'];
 		let tmp = {};
 		newState.addresses.map(address => {
-			if (!tmp[address.unit] && address.province == newState.province.items[value]) {
-				tmp[address.unit] = true;
-				newState.unit.items.push(address.unit);
+			if (!tmp[address.city] && address.province == newState.province.items[value]) {
+				tmp[address.city] = true;
+				newState.city.items.push(address.city);
 			}
 		})
 	}
 	return newState;
 }
 
-let change_unit = (state, value) => {
+let change_city = (state, value) => {
 	let newState = generate_new_state(state);
-	newState.unit.current = value;
+	newState.city.current = value;
 	newState.depart.current = 0;
 	if (value !== 0) {
 		newState.depart.items = ['选择部门'];
 		let tmp = {};
 		newState.addresses.map(address => {
-			if (!tmp[address.depart] && address.unit == newState.unit.items[value]) {
+			if (!tmp[address.depart] && address.city == newState.city.items[value]) {
 				tmp[address.depart] = true;
 				newState.depart.items.push(address.depart);
 			}
@@ -94,6 +94,18 @@ let change_depart = (state, value) => {
 	return newState;
 }
 
+let filter_manual = (state, value) => {
+	let newState = generate_new_state(state);
+	newState.filterManual = value;
+	return newState;
+}
+
+let filter_modified = (state, value) => {
+	let newState = generate_new_state(state);
+	newState.filterModified = value;
+	return newState;
+}
+
 let update_data = (state, data) => {
 	let newState = generate_new_state(state);
 	newState.addresses = data;
@@ -103,6 +115,9 @@ let update_data = (state, data) => {
 		if (!tmp[address.province]) {
 			tmp[address.province] = true;
 			newState.province.items.push(address.province);
+			if (address.province == '') {
+				console.log(address);
+			}
 		}
 	})
 	return newState;
@@ -123,7 +138,15 @@ let hide_delete_record = (state) => {
 }
 let delete_record = (state, id) => {
 	let newState = generate_new_state(state);
-	newState.addresses = newState.addresses.filter(address => address._id != id);
+	if (id == 'all') {
+		newState.addresses = [];
+	} else if (id == 'manual') {
+		newState.addresses = newState.addresses.filter(address => address.autoImport);
+	} else if (id == 'import') {
+		newState.addresses = newState.addresses.filter(address => address.autoImport == false);
+	} else {
+		newState.addresses = newState.addresses.filter(address => address._id != id);
+	}
 	return newState;
 }
 
@@ -161,11 +184,11 @@ let edit_record = (state, data) => {
 
 let show_add_record = (state) => {
 	let newState = generate_new_state(state);
-	let {province, unit, depart} = newState;
+	let {province, city, depart} = newState;
 	newState.addRecord.show = true;
 	newState.addRecord.form = {
 		province: province.current == 0 ? '' : province.items[province.current],
-		unit: unit.current == 0 ? '' : unit.items[unit.current],
+		city: city.current == 0 ? '' : city.items[city.current],
 		depart: depart.current == 0 ? '' : depart.items[depart.current],
 		phone: '',
 		address: ''
@@ -189,8 +212,10 @@ let add_record = (state, data) => {
 }
 
 const CHANGE_PROVINCE = "CHANGE_PROVINCE"
-const CHANGE_UNIT = "CHANGE_UNIT"
+const CHANGE_CITY = "CHANGE_CITY"
 const CHANGE_DEPART = "CHANGE_DEPART"
+const FILTER_MANUAL = "FILTER_MANUAL"
+const FILTER_MODIFIED = "FILTER_MODIFIED"
 
 const UPDATE_DATA = "UPDATE_DATA"
 
@@ -212,10 +237,14 @@ export default function address (state = initialState, action) {
 	switch (action.type) {
 		case CHANGE_PROVINCE:
 			return change_province(state, action.data)
-		case CHANGE_UNIT:
-			return change_unit(state, action.data)
+		case CHANGE_CITY:
+			return change_city(state, action.data)
 		case CHANGE_DEPART:
 			return change_depart(state, action.data)
+		case FILTER_MANUAL:
+			return filter_manual(state, action.data)
+		case FILTER_MODIFIED:
+			return filter_modified(state, action.data)
 		case UPDATE_DATA:
 			return update_data(state, action.data)
 		case ADD_RECORD:

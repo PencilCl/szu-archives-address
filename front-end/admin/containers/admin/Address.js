@@ -9,6 +9,7 @@ import FlatButton from 'material-ui/FlatButton';
 import RefreshIcon from 'material-ui/svg-icons/navigation/refresh';
 import Dialog from 'material-ui/Dialog';
 import TextField from 'material-ui/TextField';
+import Toggle from 'material-ui/Toggle';
 
 import * as addressActions from './actions/address'
 
@@ -23,6 +24,14 @@ const styles = {
 		position: 'fixed',
 		right: '5em',
 		bottom: '5em'
+	},
+	toggle: {
+		width: 'auto',
+		marginTop: '10px',
+		marginBottom: '10px'
+	},
+	operationButton: {
+		marginLeft: '10px'
 	}
 }
 
@@ -45,18 +54,34 @@ class Address extends Component {
 	}
 
 	filterAddress = (address) => {
-		const {province, unit, depart} = this.props;
+		const {province, city, depart, manual, modified} = this.props;
+
+  	// 过滤手动添加的数据
+  	if (manual) {
+  		if (address.autoImport) {
+  			return false;
+  		}
+  	}
+
+  	// 过滤编辑过的数据
+  	if (modified) {
+  		if (address.modified == false) {
+  			return false;
+  		}
+  	}
+
   	if (province.current == 0) {
   		return true;
   	}
+  	
   	// 过滤省份
   	if (address.province == province.items[province.current]) {
-			if (unit.current == 0) {
+			if (city.current == 0) {
 				return true;
 			}
 
 			// 过滤派遣单位
-			if (address.unit == unit.items[unit.current]) {
+			if (address.city == city.items[city.current]) {
 				if (depart.current == 0) {
 					return true;
 				}
@@ -68,12 +93,18 @@ class Address extends Component {
   	return false;
   }
 
+  chooseXml = () => {
+		this.refs.xml.click();
+  }
+
 	render() {
-		const {province, unit, depart, addresses, addRecord, deleteRecord, editRecord} = this.props;
+		const {province, city, depart, manual, modified, addresses, addRecord, deleteRecord, editRecord} = this.props;
 		const {
 			changeProvince,
-			changeUnit,
+			changeCity,
 			changeDepart,
+			filter_manual,
+			filter_modified,
 
 			show_add_record,
 			hide_add_record,
@@ -87,7 +118,9 @@ class Address extends Component {
 			hide_edit_record,
 			edit_record,
 
-			fetch_address_data
+			fetch_address_data,
+
+			upload_xls
 		} = this.props;
 
 		const actions = {
@@ -142,7 +175,7 @@ class Address extends Component {
           open={deleteRecord.show}
           onRequestClose={hide_delete_record}
         >
-          确认删除该记录？
+          确认删除？
         </Dialog>
 
 				<Dialog
@@ -161,9 +194,9 @@ class Address extends Component {
             fullWidth={true}
           />
           <TextField
-            floatingLabelText="派遣单位"
-            value={editRecord.form.unit}
-            data-field="unit"
+            floatingLabelText="市/区"
+            value={editRecord.form.city}
+            data-field="city"
             onChange={this.handleChangeEditForm}
             fullWidth={true}
           />
@@ -171,13 +204,6 @@ class Address extends Component {
             floatingLabelText="部门"
             value={editRecord.form.depart}
             data-field="depart"
-            onChange={this.handleChangeEditForm}
-            fullWidth={true}
-          />
-          <TextField
-            floatingLabelText="电话"
-            value={editRecord.form.phone}
-            data-field="phone"
             onChange={this.handleChangeEditForm}
             fullWidth={true}
           />
@@ -207,9 +233,9 @@ class Address extends Component {
             fullWidth={true}
           />
           <TextField
-            floatingLabelText="派遣单位"
-            value={addRecord.form.unit}
-            data-field="unit"
+            floatingLabelText="市/区"
+            value={addRecord.form.city}
+            data-field="city"
             onChange={this.handleChangeAddForm}
             fullWidth={true}
           />
@@ -217,13 +243,6 @@ class Address extends Component {
             floatingLabelText="部门"
             value={addRecord.form.depart}
             data-field="depart"
-            onChange={this.handleChangeAddForm}
-            fullWidth={true}
-          />
-          <TextField
-            floatingLabelText="电话"
-            value={addRecord.form.phone}
-            data-field="phone"
             onChange={this.handleChangeAddForm}
             fullWidth={true}
           />
@@ -253,18 +272,18 @@ class Address extends Component {
 				{province.current !== 0 ? 
 	        <SelectField
 						style={styles.select}
-	          floatingLabelText="派遣单位"
-	          value={unit.current}
-	          onChange={changeUnit}
+	          floatingLabelText="市/区"
+	          value={city.current}
+	          onChange={changeCity}
 	          autoWidth={true}
 	        >
-	        	{unit.items.map((item, index) =>
+	        	{city.items.map((item, index) =>
 							<MenuItem key={index} value={index} primaryText={item} />
 	        	)}
 	        </SelectField>
         : null}
 
-				{unit.current !== 0 ? 
+				{city.current !== 0 ? 
 	        <SelectField
 						style={styles.select}
 	          floatingLabelText="部门"
@@ -278,9 +297,58 @@ class Address extends Component {
 	        </SelectField>
         : null}
 
-        <div style={{textAlign: 'center'}}><FlatButton onTouchTap={show_add_record} label="没有记录?点此添加" secondary={true} /></div>
+				<div>
+					<Toggle
+					 	label="过滤手动添加数据"
+					  style={styles.toggle}
+					  toggled={manual}
+					  onToggle={filter_manual} />
+					<Toggle
+						label="过滤编辑过的数据"
+						style={styles.toggle}
+					  toggled={modified}
+						onToggle={filter_modified} />
+				</div>
+        <div>
+        	操作: 
+        	<FlatButton 
+        		onTouchTap={show_add_record} 
+        		label="添加记录" 
+        		primary={true} 
+        		style={styles.operationButton} />
+        	<FlatButton 
+        		onTouchTap={this.chooseXml} 
+        		label="批量导入" 
+        		primary={true} 
+        		style={styles.operationButton} />
+        	<FlatButton 
+        		onTouchTap={() => show_delete_record("all")} 
+        		label="删除全部" 
+        		secondary={true} 
+        		style={styles.operationButton} />
+        	<FlatButton 
+        		onTouchTap={() => show_delete_record("manual")} 
+        		label="删除手动添加数据" 
+        		secondary={true} 
+        		style={styles.operationButton} />
+        	<FlatButton 
+        		onTouchTap={() => show_delete_record("import")} 
+        		label="删除导入数据" 
+        		secondary={true} 
+        		style={styles.operationButton} />
 
-        <AddressTable onDelete={show_delete_record} onEdit={show_edit_record} addresses={addresses.filter(this.filterAddress)} />
+        	<div style={{display: 'none'}}>
+        		<input 
+        			ref="xml" 
+        			type="file" 
+        			onChange={(e) => upload_xls(e, fetch_address_data)}/>
+        	</div>
+        </div>
+
+        <AddressTable 
+        	onDelete={show_delete_record} 
+        	onEdit={show_edit_record} 
+        	addresses={addresses.filter(this.filterAddress)} />
 			</div>
 		)
 	}
@@ -289,8 +357,10 @@ class Address extends Component {
 function mapStateToProps(state) {
 	return {
 		province: state.address.province,
-		unit: state.address.unit,
+		city: state.address.city,
 		depart: state.address.depart,
+		manual: state.address.filterManual,
+		modified: state.address.filterModified,
 		addresses: state.address.addresses,
 		addRecord: state.address.addRecord,
 		deleteRecord: state.address.deleteRecord,
