@@ -31,31 +31,10 @@
 	<div class="weui_cells">
 		<div class="weui_cell weui_cell_select weui_select_after">
 	    <div class="weui_cell_hd">
-	    	<label for="" class="weui_label">省市</label>
+	    	<label for="" class="weui_label">省份</label>
 	    </div>
 	    <div class="weui_cell_bd weui_cell_primary">
-	      <select class="weui_select" name="select2" id="province" onchange="setUnit()">
-	        <option value="北京市">北京市</option> 
-	        <option value="吉林省">吉林省</option> 
-	        <option value="四川省">四川省</option> 
-	        <option value="天津市">天津市</option> 
-	        <option value="山西省">山西省</option> 
-	        <option value="广东省">广东省</option> 
-	        <option value="江苏省">江苏省</option> 
-	        <option value="江西省">江西省</option> 
-	        <option value="河南省">河南省</option> 
-	        <option value="浙江省">浙江省</option> 
-	        <option value="海南省">海南省</option> 
-	        <option value="湖北省">湖北省</option> 
-	        <option value="湖南省">湖南省</option> 
-	        <option value="福建省">福建省</option> 
-	        <option value="陕西省">陕西省</option> 
-	        <option value="云南省">云南省</option> 
-	        <option value="黑龙江省">黑龙江省</option>
-	        <option value="宁夏回族自治区">宁夏回族自治区</option> 
-	        <option value="广西壮族自治区">广西壮族自治区</option> 
-	        <option value="内蒙古自治区">内蒙古自治区</option> 
-	        <option value="新疆维吾尔族自治区">新疆维吾尔族自治区</option> 
+	      <select class="weui_select" name="select2" id="province" onchange="getCity()">
 	      </select>
 	    </div>
 		</div>
@@ -63,10 +42,10 @@
 	<div class="weui_cells">
 		<div class="weui_cell weui_cell_select weui_select_after">
 	    <div class="weui_cell_hd">
-	    	<label for="" class="weui_label">派遣单位</label>
+	    	<label for="" class="weui_label">市区</label>
 	    </div>
 	    <div class="weui_cell_bd weui_cell_primary">
-	      <select class="weui_select" name="select2" id="unit-option" onchange="setOtherInfo()">
+	      <select class="weui_select" name="select2" id="city" onchange="getDepart()">
 	      </select>
 	    </div>
 		</div>
@@ -77,32 +56,15 @@
 	    	<label for="" class="weui_label">主管部门</label>
 	    </div>
 	    <div class="weui_cell_bd weui_cell_primary">
-        <select class="weui_select" name="select2" id="depart-option" onchange="setDepart()">
+        <select class="weui_select" name="select2" id="depart" onchange="getAddress()">
         </select>
 	    </div>
 		</div>
 	</div>
-	<div class="weui_cells">
-		<div class="weui_cell weui_cell_select weui_select_after">
-      <div class="weui_cell_hd">
-      	<label for="" class="weui_label">单位电话</label>
-      </div>
-      <div class="weui_cell_bd weui_cell_primary">
-        <select class="weui_select" name="select2" id="phone-option">
-        </select>
-      </div>
-		</div>
-	</div>
-	<div class="weui_cells">
-		<div class="weui_cell weui_cell_select weui_select_after">
-      <div class="weui_cell_hd">
-      	<label for="" class="weui_label">单位地址</label>
-      </div>
-      <div class="weui_cell_bd weui_cell_primary">
-        <select class="weui_select" name="select2" id="address-option">
-        </select>
-      </div>
-		</div>
+
+	<div class="weui_msg">
+   	<h3 style="color: #04be02">查询结果</h3>
+   	<p id="addressP"></p>
 	</div>
 </body>
 
@@ -110,6 +72,19 @@
 	var loadingToast = document.getElementById('loadingToast');
 	var failToast = document.getElementById('failToast');
 	
+	var provinceSelect = document.getElementById("province");
+	var citySelect = document.getElementById("city");
+	var departSelect = document.getElementById("depart");
+	
+	var addressP = document.getElementById("addressP");
+
+	var addresses = null;
+
+	/**
+	 * ajax get请求
+	 * @param  {string}   surl     请求url
+	 * @param  {Function} callback 回调函数
+	 */
 	function fetch(surl, callback) {
 		var xhr = new XMLHttpRequest(); //生成XMLHttpRequest对象 
 
@@ -133,61 +108,95 @@
 		showLoading();
 	}
 
-	function setUnit() {
-		var objS = document.getElementById("province");
-		var province = objS.options[objS.selectedIndex].value;
-		fetch("/api/address/province/" + province, data => {
+	function fetchAddressData() {
+		fetch("/api/address/all", function(data) {
 			if (data.code == 10000) {
-				var options = "";
-				data.data.map(function(address) {
-					options += "<option value=\"" + address.unit + "\">" + address.unit + "</option>";
-				})
-				document.getElementById("unit-option").innerHTML = options;
-				document.getElementById("depart-option").innerHTML = "";
-				document.getElementById("phone-option").innerHTML = "";
-				document.getElementById("address-option").innerHTML = "";
-				setOtherInfo();
+				addresses = data.data;
+				renderProvince();
 			} else {
 				alert(data.error);
 			}
 		})
 	}
 
-	function setOtherInfo() {
-		var objS = document.getElementById("unit-option");
-		if (objS.selectedIndex == -1) {
-			return ;
+	/**
+	 * 渲染省份列表
+	 */
+	function renderProvince() {
+		if (addresses == null) {
+			return fetchAddressData();
 		}
-		var unit = objS.options[objS.selectedIndex].value;
 
-		fetch("/api/address/unit/" + unit, data => {
-			if (data.code == 10000) {
-				var departOptions = "",
-						phoneOptions = "",
-						addressOptions = "";
-				data.data.map(function(address) {
-					departOptions += "<option value=\"" + address.depart + "\">" + address.depart + "</option>";
-					phoneOptions += "<option value=\"" + address.phone + "\">" + address.phone + "</option>";
-					addressOptions += "<option value=\"" + address.address + "\">" + address.address + "</option>";
-				})
-				document.getElementById("depart-option").innerHTML = departOptions;
-				document.getElementById("phone-option").innerHTML = phoneOptions;
-				document.getElementById("address-option").innerHTML = addressOptions;
-			} else {
-				alert(data.error);
+		province = {};
+		var options = "<option value=\"-1\">请选择省份</option>";
+		addresses.map(function(address) {
+			if (!province[address.province]) {
+				options += "<option value=\"" + address.province + "\">" + address.province + "</option>";
+				province[address.province] = true;
 			}
 		})
+		provinceSelect.innerHTML = options;
+		citySelect.innerHTML = "";
 	}
 
-	function setDepart() {
-		var departObj = document.getElementById("depart-option");
-		var phoneObj = document.getElementById("phone-option");
-		var addressObj = document.getElementById("address-option");
-		if (departObj.selectedIndex == -1) {
+	/**
+	 * 根据省份获取市/区列表
+	 */
+	function getCity() {
+		if (provinceSelect.selectedIndex <= 0) {
+			citySelect.innerHTML = "";
 			return ;
 		}
-		phoneObj.selectedIndex = departObj.selectedIndex;
-		addressObj.selectedIndex = departObj.selectedIndex;
+		var province = provinceSelect.options[provinceSelect.selectedIndex].value;
+		
+		var city = {};
+		var options = "<option value=\"-1\">请选择市/区</option>";
+		addresses.map(function(address) {
+			if (address.province == province && !city[address.city]) {
+				options += "<option value=\"" + address.city + "\">" + address.city + "</option>";
+				city[address.city] = true;
+			}
+		})
+		citySelect.innerHTML = options;
+		departSelect.innerHTML = "";
+	}
+
+	/**
+	 * 根据省、市获取主管部门列表
+	 * @return {[type]} [description]
+	 */
+	function getDepart() {
+		if (citySelect.selectedIndex <= 0) {
+			departSelect.innerHTML = "";
+			return ;
+		}
+		var city = citySelect.options[citySelect.selectedIndex].value;
+		var province = provinceSelect.options[provinceSelect.selectedIndex].value;
+
+		var options = "<option value=\"-1\">请选择部门</option>";
+		addresses.map(function(address) {
+			if (address.province == province && address.city == city) {
+				options += "<option value=\"" + address.depart + "\">" + address.depart + "</option>";
+			}
+		})
+		departSelect.innerHTML = options;
+		addressP.innerHTML = "";
+	}
+
+	function getAddress() {
+		if (departSelect.selectedIndex <= 0) {
+			addressP.innerHTML = "";
+			return ;
+		}
+		var depart = departSelect.options[departSelect.selectedIndex].value;
+		var city = citySelect.options[citySelect.selectedIndex].value;
+		var province = provinceSelect.options[provinceSelect.selectedIndex].value;
+
+		addresses.map(function(address) {
+			if (address.province == province && address.city == city && address.depart == depart) {
+				addressP.innerHTML = address.address;
+			}
+		})
 	}
 
 	function showLoading() {
@@ -198,6 +207,6 @@
 		loadingToast.style.display = "none";
 	}
 
-	setUnit();
+	fetchAddressData();
 </script>
 </html>
