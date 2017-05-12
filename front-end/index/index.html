@@ -78,8 +78,6 @@
 	
 	var addressP = document.getElementById("addressP");
 
-	var addresses = null;
-
 	/**
 	 * ajax get请求
 	 * @param  {string}   surl     请求url
@@ -108,35 +106,22 @@
 		showLoading();
 	}
 
-	function fetchAddressData() {
-		fetch("/api/address/all", function(data) {
+	function fetchProvinceList() {
+		fetch("/api/address/provinceList", function(data) {
 			if (data.code == 10000) {
-				addresses = data.data;
-				renderProvince();
+				provinceList = data.data;
+				var options = "<option value=\"-1\">请选择省份</option>";
+				provinceList.map(function(province) {
+					options += "<option value=\"" + province + "\">" + province + "</option>";
+				})
+				provinceSelect.innerHTML = options;
+				citySelect.innerHTML = "";
+				departSelect.innerHTML = "";
+				addressP.innerHTML = "";
 			} else {
 				alert(data.error);
 			}
 		})
-	}
-
-	/**
-	 * 渲染省份列表
-	 */
-	function renderProvince() {
-		if (addresses == null) {
-			return fetchAddressData();
-		}
-
-		province = {};
-		var options = "<option value=\"-1\">请选择省份</option>";
-		addresses.map(function(address) {
-			if (!province[address.province]) {
-				options += "<option value=\"" + address.province + "\">" + address.province + "</option>";
-				province[address.province] = true;
-			}
-		})
-		provinceSelect.innerHTML = options;
-		citySelect.innerHTML = "";
 	}
 
 	/**
@@ -149,16 +134,20 @@
 		}
 		var province = provinceSelect.options[provinceSelect.selectedIndex].value;
 		
-		var city = {};
-		var options = "<option value=\"-1\">请选择市/区</option>";
-		addresses.map(function(address) {
-			if (address.province == province && !city[address.city]) {
-				options += "<option value=\"" + address.city + "\">" + address.city + "</option>";
-				city[address.city] = true;
+		fetch("/api/address/cityList/" + province, function(data) {
+			if (data.code == 10000) {
+				cityList = data.data;
+				var options = "<option value=\"-1\">请选择市/区</option>";
+				cityList.map(function(city) {
+					options += "<option value=\"" + city + "\">" + city + "</option>";
+				})
+				citySelect.innerHTML = options;
+				departSelect.innerHTML = "";
+				addressP.innerHTML = "";
+			} else {
+				alert(data.error);
 			}
 		})
-		citySelect.innerHTML = options;
-		departSelect.innerHTML = "";
 	}
 
 	/**
@@ -171,16 +160,20 @@
 			return ;
 		}
 		var city = citySelect.options[citySelect.selectedIndex].value;
-		var province = provinceSelect.options[provinceSelect.selectedIndex].value;
-
-		var options = "<option value=\"-1\">请选择部门</option>";
-		addresses.map(function(address) {
-			if (address.province == province && address.city == city) {
-				options += "<option value=\"" + address.depart + "\">" + address.depart + "</option>";
+		
+		fetch("/api/address/departList/" + city, function(data) {
+			if (data.code == 10000) {
+				departList = data.data;
+				var options = "<option value=\"-1\">请选择部门</option>";
+				departList.map(function(depart) {
+					options += "<option value=\"" + depart + "\">" + depart + "</option>";
+				})
+				departSelect.innerHTML = options;
+				addressP.innerHTML = "";
+			} else {
+				alert(data.error);
 			}
 		})
-		departSelect.innerHTML = options;
-		addressP.innerHTML = "";
 	}
 
 	function getAddress() {
@@ -189,12 +182,12 @@
 			return ;
 		}
 		var depart = departSelect.options[departSelect.selectedIndex].value;
-		var city = citySelect.options[citySelect.selectedIndex].value;
-		var province = provinceSelect.options[provinceSelect.selectedIndex].value;
 
-		addresses.map(function(address) {
-			if (address.province == province && address.city == city && address.depart == depart) {
-				addressP.innerHTML = address.address;
+		fetch("/api/address/address/" + depart, function(data) {
+			if (data.code == 10000) {
+				addressP.innerHTML = data.data;
+			} else {
+				alert(data.error);
 			}
 		})
 	}
@@ -207,6 +200,6 @@
 		loadingToast.style.display = "none";
 	}
 
-	fetchAddressData();
+	fetchProvinceList();
 </script>
 </html>

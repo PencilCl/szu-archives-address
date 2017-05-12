@@ -5,13 +5,44 @@ import formidable from 'formidable'
 import xlsx from 'node-xlsx'
 
 exports.queryAll = (req, res, next) => {
-	const province = req.params.province;
-	
-	Address.find({}, {_id: 0, autoImport: 0}, (err, addresses) => {
+	Address.find({}, {_id: 0, autoImport: 0, modified: 0}, (err, addresses) => {
 		if (err) {
 			return res.json({code: 10500, error: 'server error'});
 		}
 		res.json({code: 10000, error: '', data: addresses});
+	})
+}
+
+exports.provinceList = (req, res, next) => {
+	Address.distinct("province", (err, addresses) => {
+		res.json({code: 10000, data: addresses});
+	})
+}
+
+exports.cityList = (req, res, next) => {
+	const province = req.params.province;
+
+	Address.distinct("city", {province: province}, (err, addresses) => {
+		res.json({code: 10000, data: addresses});
+	})
+}
+
+exports.departList = (req, res, next) => {
+	const city = req.params.city;
+	
+	Address.distinct("depart", {city: city}, (err, addresses) => {
+		res.json({code: 10000, data: addresses});
+	})
+}
+
+exports.address = (req, res, next) => {
+	const depart = req.params.depart;
+
+	Address.findOne({depart: depart}, {_id: 0, address: 1}, (err, address) => {
+		if (err) {
+			return res.json({code: 10500, error: '查询失败，请重新尝试'});
+		}
+		res.json({code: 10000, data: address.address});
 	})
 }
 
