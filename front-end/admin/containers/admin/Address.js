@@ -215,6 +215,14 @@ class Address extends Component {
             multiLine={true}
             fullWidth={true}
           />
+          <TextField
+            floatingLabelText="邮编"
+            value={editRecord.form.postcode}
+            data-field="postcode"
+            onChange={this.handleChangeEditForm}
+            multiLine={true}
+            fullWidth={true}
+          />
         </Dialog>
 
         <Dialog
@@ -250,6 +258,14 @@ class Address extends Component {
             floatingLabelText="地址"
             value={addRecord.form.address}
             data-field="address"
+            onChange={this.handleChangeAddForm}
+            multiLine={true}
+            fullWidth={true}
+          />
+          <TextField
+            floatingLabelText="邮编"
+            value={addRecord.form.postcode}
+            data-field="postcode"
             onChange={this.handleChangeAddForm}
             multiLine={true}
             fullWidth={true}

@@ -93,7 +93,7 @@ export function add_record() {
 	      "Content-type": "application/x-www-form-urlencoded; charset=UTF-8",
 	      token: token
 			},
-			body: `province=${form.province}&city=${form.city}&depart=${form.depart}&phone=${form.phone}&address=${form.address}`
+			body: `province=${form.province}&city=${form.city}&depart=${form.depart}&address=${form.address}&postcode=${form.postcode}`
 		}).then(response => {
 			if (response.ok) {
 				response.json().then(data => {
@@ -107,6 +107,7 @@ export function add_record() {
 								province: form.province,
 								city: form.city,
 								depart: form.depart,
+								postcode: form.postcode,
 								address: form.address,
 								autoImport: false,
 								modified: false
@@ -216,7 +217,7 @@ export function edit_record() {
 	      "Content-type": "application/x-www-form-urlencoded; charset=UTF-8",
 	      token: token
 			},
-			body: `province=${form.province}&city=${form.city}&depart=${form.depart}&phone=${form.phone}&address=${form.address}`
+			body: `province=${form.province}&city=${form.city}&depart=${form.depart}&address=${form.address}&postcode=${form.postcode}`
 		}).then(response => {
 			if (response.ok) {
 				response.json().then(data => {

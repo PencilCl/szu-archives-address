@@ -27,7 +27,8 @@ const initialState = {
 			province: '',
 			city: '',
 			depart: '',
-			address: ''
+			address: '',
+			postcode: ''
 		}
 	},
 	deleteRecord: {
@@ -41,7 +42,8 @@ const initialState = {
 			province: '',
 			city: '',
 			depart: '',
-			address: ''
+			address: '',
+			postcode: ''
 		}
 	},
 	addresses: [
@@ -190,8 +192,8 @@ let show_add_record = (state) => {
 		province: province.current == 0 ? '' : province.items[province.current],
 		city: city.current == 0 ? '' : city.items[city.current],
 		depart: depart.current == 0 ? '' : depart.items[depart.current],
-		phone: '',
-		address: ''
+		address: '',
+		postcode: ''
 	}
 	return newState;
 }
