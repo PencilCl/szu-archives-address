@@ -208,6 +208,14 @@ class Address extends Component {
             fullWidth={true}
           />
           <TextField
+            floatingLabelText="派遣单位"
+            value={editRecord.form.unit}
+            data-field="unit"
+            onChange={this.handleChangeEditForm}
+            multiLine={true}
+            fullWidth={true}
+          />
+          <TextField
             floatingLabelText="地址"
             value={editRecord.form.address}
             data-field="address"
@@ -252,6 +260,14 @@ class Address extends Component {
             value={addRecord.form.depart}
             data-field="depart"
             onChange={this.handleChangeAddForm}
+            fullWidth={true}
+          />
+          <TextField
+            floatingLabelText="派遣单位"
+            value={addRecord.form.unit}
+            data-field="unit"
+            onChange={this.handleChangeAddForm}
+            multiLine={true}
             fullWidth={true}
           />
           <TextField

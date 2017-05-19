@@ -27,6 +27,7 @@ const initialState = {
 			province: '',
 			city: '',
 			depart: '',
+			unit: '',
 			address: '',
 			postcode: ''
 		}
@@ -42,6 +43,7 @@ const initialState = {
 			province: '',
 			city: '',
 			depart: '',
+			unit: '',
 			address: '',
 			postcode: ''
 		}
@@ -192,6 +194,7 @@ let show_add_record = (state) => {
 		province: province.current == 0 ? '' : province.items[province.current],
 		city: city.current == 0 ? '' : city.items[city.current],
 		depart: depart.current == 0 ? '' : depart.items[depart.current],
+		unit: '',
 		address: '',
 		postcode: ''
 	}
