@@ -69,6 +69,7 @@
 	</div>
 </body>
 
+<script src="pinyin.js"></script>
 <script type="text/javascript">
 	var loadingToast = document.getElementById('loadingToast');
 	var failToast = document.getElementById('failToast');
@@ -108,12 +109,18 @@
 		showLoading();
 	}
 
+	function sortByPinyin(value1, value2) {
+		var p1 = pinyin.getFullChars(value1),
+				p2 = pinyin.getFullChars(value2);
+		return p1 > p2 ? 1 : (p1 < p2 ? -1 : 0);
+	}
+
 	function fetchProvinceList() {
 		fetch("/api/address/provinceList", function(data) {
 			if (data.code == 10000) {
 				provinceList = data.data;
 				var options = "<option value=\"-1\">请选择省份</option>";
-				provinceList.map(function(province) {
+				provinceList.sort(sortByPinyin).map(function(province) {
 					options += "<option value=\"" + province + "\">" + province + "</option>";
 				})
 				provinceSelect.innerHTML = options;
@@ -140,7 +147,7 @@
 			if (data.code == 10000) {
 				cityList = data.data;
 				var options = "<option value=\"-1\">请选择市/区</option>";
-				cityList.map(function(city) {
+				cityList.sort(sortByPinyin).map(function(city) {
 					options += "<option value=\"" + city + "\">" + city + "</option>";
 				})
 				citySelect.innerHTML = options;

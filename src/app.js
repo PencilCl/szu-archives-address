@@ -26,6 +26,7 @@ app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
 // static server
 app.use('/admin', express.static(path.join(__dirname, '../front-end/admin/public/')));
+app.use('/', express.static(path.join(__dirname, '../front-end/index/')));
 
 //设置跨域访问
 app.all('/api/*', function(req, res, next) {
