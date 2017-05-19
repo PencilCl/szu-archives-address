@@ -111,9 +111,7 @@
 			if (data.code == 10000) {
 				provinceList = data.data;
 				var options = "<option value=\"-1\">请选择省份</option>";
-				provinceList.sort(function compareFunction(param1, param2) {
-					return param1.localeCompare(param2);
-				}).map(function(province) {
+				provinceList.map(function(province) {
 					options += "<option value=\"" + province + "\">" + province + "</option>";
 				})
 				provinceSelect.innerHTML = options;
@@ -140,9 +138,7 @@
 			if (data.code == 10000) {
 				cityList = data.data;
 				var options = "<option value=\"-1\">请选择市/区</option>";
-				cityList.sort(function compareFunction(param1, param2) {
-					return param1.localeCompare(param2);
-				}).map(function(city) {
+				cityList.map(function(city) {
 					options += "<option value=\"" + city + "\">" + city + "</option>";
 				})
 				citySelect.innerHTML = options;
@@ -169,9 +165,7 @@
 			if (data.code == 10000) {
 				departList = data.data;
 				var options = "<option value=\"-1\">请选择部门</option>";
-				departList.sort(function compareFunction(param1, param2) {
-					return param1.localeCompare(param2);
-				}).map(function(depart) {
+				departList.map(function(depart) {
 					options += "<option value=\"" + depart + "\">" + depart + "</option>";
 				})
 				departSelect.innerHTML = options;
