@@ -15,6 +15,10 @@ let AddressSchema = new Schema({
 	address: {
 		type: String
 	},
+	postcode: {
+		type: String,
+		default: "无"
+	},
 	autoImport: {
 		type: Boolean,
 		default: true

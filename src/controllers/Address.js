@@ -74,6 +74,7 @@ exports.import = (req, res, next) => {
 			objAddress.city = data[1];
 			objAddress.depart = data[2];
 			objAddress.address = data[4];
+			objAddress.postcode = data[5] ? data[5] : "无";
 			objAddress.save((err) => {});
   	}
   	res.json({code: 10000, error: ''});
@@ -90,13 +91,13 @@ exports.index = (req, res, next) => {
 }
 
 exports.save = (req, res, next) => {
-	const {province, city, depart, phone, address} = req.body;
+	const {province, city, depart, phone, address, postcode} = req.body;
 	// check parmas;
-	if (!province || !city || !depart || !phone || !address) {
+	if (!province || !city || !depart || !address || !postcode) {
 		return res.json({code: 10200, error: 'params error'});
 	}
 
-	Address.findOne({province: province, city: city, depart: depart, phone: phone, address: address}, (err, addressObj) => {
+	Address.findOne({province: province, city: city, depart: depart, address: address, postcode: postcode}, (err, addressObj) => {
 		if (err) {
 			return res.json({code: 10500, error: 'server error'});
 		}
@@ -108,7 +109,7 @@ exports.save = (req, res, next) => {
 		objAddress.province = province;
 		objAddress.city = city;
 		objAddress.depart = depart;
-		objAddress.phone = phone;
+		objAddress.postcode = postcode;
 		objAddress.address = address;
 		objAddress.autoImport = false;
 		objAddress.save((err, product) => {
@@ -146,15 +147,15 @@ exports.update = (req, res, next) => {
 			resolve(address);
 		})
 	}).then(objAddress => {
-		const {province, city, depart, phone, address} = req.body;
+		const {province, city, depart, phone, address, postcode} = req.body;
 		// check parmas;
-		if (!province || !city || !depart || !phone || !address) {
+		if (!province || !city || !depart || !address || !postcode) {
 			return res.json({code: 10200, error: 'params error'});
 		}
 		objAddress.province = province;
 		objAddress.city = city;
 		objAddress.depart = depart;
-		objAddress.phone = phone;
+		objAddress.postcode = postcode;
 		objAddress.address = address;
 		objAddress.modified = true;
 		objAddress.save(err => {
