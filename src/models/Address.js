@@ -12,6 +12,9 @@ let AddressSchema = new Schema({
 	depart: {
 		type: String
 	},
+	unit: {
+		type: String
+	},
 	address: {
 		type: String
 	},
