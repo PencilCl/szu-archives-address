@@ -64,9 +64,16 @@
 
 	<div class="weui_msg">
    	<h3 style="color: #04be02">查询结果</h3>
-   	<p id="addressP"></p>
-   	<p id="postcodeP"></p>
 	</div>
+
+	<div style="padding: 15px;">
+	  <h3 id="unitP"></h3>
+	  <br>
+		<h3 id="addressP"></h3>
+	  <br>
+	  <h3 id="postcodeP"></h3>
+	</div>
+
 </body>
 
 <script src="pinyin.js"></script>
@@ -78,6 +85,7 @@
 	var citySelect = document.getElementById("city");
 	var departSelect = document.getElementById("depart");
 	
+	var unitP = document.getElementById("unitP");
 	var addressP = document.getElementById("addressP");
 	var postcodeP = document.getElementById("postcodeP");
 
@@ -126,7 +134,7 @@
 				provinceSelect.innerHTML = options;
 				citySelect.innerHTML = "";
 				departSelect.innerHTML = "";
-				addressP.innerHTML = "";
+				clearResult();
 			} else {
 				alert(data.error);
 			}
@@ -152,7 +160,7 @@
 				})
 				citySelect.innerHTML = options;
 				departSelect.innerHTML = "";
-				addressP.innerHTML = "";
+				clearResult();
 			} else {
 				alert(data.error);
 			}
@@ -178,7 +186,7 @@
 					options += "<option value=\"" + depart + "\">" + depart + "</option>";
 				})
 				departSelect.innerHTML = options;
-				addressP.innerHTML = "";
+				clearResult();
 			} else {
 				alert(data.error);
 			}
@@ -195,8 +203,9 @@
 		fetch("/api/address/address/" + depart, function(data) {
 			if (data.code == 10000) {
 				data = data.data;
-				addressP.innerHTML = "地址: " + data.address;
-				postcodeP.innerHTML = "邮编: " + data.postcode;
+				unitP.innerHTML = "派遣单位: " + data.unit;
+				addressP.innerHTML = "具体地址: " + data.address;
+				postcodeP.innerHTML = "邮政编码: " + data.postcode;
 			} else {
 				alert(data.error);
 			}
@@ -209,6 +218,12 @@
 
 	function hideLoading() {
 		loadingToast.style.display = "none";
+	}
+
+	function clearResult() {
+		unitP.innerHTML = "";
+		addressP.innerHTML = "";
+		postcodeP.innerHTML = "";
 	}
 
 	fetchProvinceList();
