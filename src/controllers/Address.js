@@ -38,11 +38,14 @@ exports.departList = (req, res, next) => {
 exports.address = (req, res, next) => {
 	const depart = req.params.depart;
 
-	Address.findOne({depart: depart}, {_id: 0, address: 1}, (err, address) => {
+	Address.findOne({depart: depart}, {_id: 0, address: 1, postcode: 1}, (err, address) => {
 		if (err) {
 			return res.json({code: 10500, error: '查询失败，请重新尝试'});
 		}
-		res.json({code: 10000, data: address.address});
+		res.json({code: 10000, data: {
+			address: address.address,
+			postcode: address.postcode
+		}});
 	})
 }
 
