@@ -205,7 +205,7 @@
 				data = data.data;
 				unitP.innerHTML = "派遣单位: " + data.unit;
 				addressP.innerHTML = "具体地址: " + data.address;
-				if (data.postcode == "无") {					
+				if (data.postcode == "") {
 					postcodeP.innerHTML = "";
 				} else {
 					postcodeP.innerHTML = "邮政编码: " + data.postcode;

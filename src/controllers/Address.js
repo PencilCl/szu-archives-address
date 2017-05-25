@@ -75,7 +75,8 @@ exports.import = (req, res, next) => {
 			objAddress.depart = data[2];
 			objAddress.unit = data[3];
 			objAddress.address = data[4];
-			objAddress.postcode = data[5] ? data[5] : "无";
+			objAddress.postcode = data[5] ? data[5] : "";
+			objAddress.contact = data[6] ? data[6] : "";
 			objAddress.save((err) => {});
   	}
   	res.json({code: 10000, error: ''});
@@ -85,20 +86,22 @@ exports.import = (req, res, next) => {
 exports.index = (req, res, next) => {
 	Address.find({}, (err, address) => {
 		if (err) {
-			return res.json({code: 10404, error: 'params error'});
+			return res.json({code: 10404, error: '参数错误'});
 		}
 		res.json({code: 10000, data: address});
 	})
 }
 
 exports.save = (req, res, next) => {
-	const {province, city, depart, phone, unit, address, postcode} = req.body;
+	let {province, city, depart, phone, unit, address, postcode, contact} = req.body;
+	postcode = postcode ? postcode : "";
+	contact = contact ? contact : "";
 	// check parmas;
-	if (!province || !city || !depart || !unit || !address || !postcode) {
-		return res.json({code: 10200, error: 'params error'});
+	if (!province || !city || !depart || !unit || !address) {
+		return res.json({code: 10200, error: '参数错误'});
 	}
 
-	Address.findOne({province: province, city: city, depart: depart, unit: unit, address: address, postcode: postcode}, (err, addressObj) => {
+	Address.findOne({province: province, city: city, depart: depart, unit: unit, address: address, postcode: postcode, contact: contact}, (err, addressObj) => {
 		if (err) {
 			return res.json({code: 10500, error: 'server error'});
 		}
@@ -114,9 +117,10 @@ exports.save = (req, res, next) => {
 		objAddress.unit = unit;
 		objAddress.address = address;
 		objAddress.autoImport = false;
+		objAddress.contact = contact;
 		objAddress.save((err, product) => {
 			if (err) {
-				return res.json({code: 10500, error: 'server error'});
+				return res.json({code: 10500, error: '服务器错误'});
 			}
 			res.json({code: 10000, error: '', data: product._id});
 		})
@@ -127,7 +131,7 @@ exports.read = (req, res, next) => {
 	const id = req.params.id;
 	Address.findById(id, (err, address) => {
 		if (err) {
-			return res.json({code: 10500, error: 'server error'});
+			return res.json({code: 10500, error: '服务器错误'});
 		}
 		if (!address) {
 			return res.json({code: 10200, error: `无此记录(id:${id})`});
@@ -149,24 +153,37 @@ exports.update = (req, res, next) => {
 			resolve(address);
 		})
 	}).then(objAddress => {
-		const {province, city, depart, phone, unit, address, postcode} = req.body;
+		let {province, city, depart, phone, unit, address, postcode, contact} = req.body;
+		postcode = postcode ? postcode : "";
+		contact = contact ? contact : "";
 		// check parmas;
-		if (!province || !city || !depart || !unit || !address || !postcode) {
-			return res.json({code: 10200, error: 'params error'});
+		if (!province || !city || !depart || !unit || !address) {
+			return res.json({code: 10200, error: '参数错误'});
 		}
-		objAddress.province = province;
-		objAddress.city = city;
-		objAddress.depart = depart;
-		objAddress.postcode = postcode;
-		objAddress.unit = unit;
-		objAddress.address = address;
-		objAddress.modified = true;
-		objAddress.save(err => {
+
+		Address.findOne({province: province, city: city, depart: depart, unit: unit, address: address, postcode: postcode, contact: contact}, (err, addressObj) => {
 			if (err) {
-				console.log(err);
-				return res.json({code: 10500, error: 'server error'});
+				return res.json({code: 10500, error: '服务器错误'});
 			}
-			res.json({code: 10000, error: ''});
+			if (addressObj) {
+				return res.json({code: 10200, error: "记录已存在"});
+			}
+
+			objAddress.province = province;
+			objAddress.city = city;
+			objAddress.depart = depart;
+			objAddress.postcode = postcode;
+			objAddress.unit = unit;
+			objAddress.address = address;
+			objAddress.modified = true;
+			objAddress.contact = contact;
+			objAddress.save(err => {
+				if (err) {
+					console.log(err);
+					return res.json({code: 10500, error: '服务器错误'});
+				}
+				res.json({code: 10000, error: ''});
+			})
 		})
 	}, err => {
 		return res.json({code: 10200, error: err});
@@ -177,7 +194,7 @@ exports.delete = (req, res, next) => {
 	const id = req.params.id;
 	Address.remove({_id: id}, err => {
 		if (err) {
-			return res.json({code: 10200, error: 'params error'});
+			return res.json({code: 10200, error: '参数错误'});
 		}
 		res.json({code: 10000, error: ''});
 	})

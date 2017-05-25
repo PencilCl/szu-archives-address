@@ -62,7 +62,7 @@ class AddressTable extends Component {
 			    >
 			      <TableRow>
 			        <TableHeaderColumn width={60}>省份</TableHeaderColumn>
-			        <TableHeaderColumn>市/区</TableHeaderColumn>
+			        <TableHeaderColumn width={60}>市/区</TableHeaderColumn>
 			        <TableHeaderColumn>主管部门</TableHeaderColumn>
 			        <TableHeaderColumn>地址</TableHeaderColumn>
 			        <TableHeaderColumn width={80}>操作</TableHeaderColumn>
@@ -76,7 +76,7 @@ class AddressTable extends Component {
 			    {addresses.map((address, index) => (index >= (currentPage - 1) * ROWS && index < currentPage * ROWS) ? 
 			    	<TableRow key={index}>
 			    	  <TableRowColumn width={60}>{address.province}</TableRowColumn>
-			    	  <TableRowColumn>{address.city}</TableRowColumn>
+			    	  <TableRowColumn width={60}>{address.city}</TableRowColumn>
 			    	  <TableRowColumn>{address.depart}</TableRowColumn>
 			    	  <TableRowColumn>{address.address}</TableRowColumn>
 			    	  <TableRowColumn width={80}><FlatButton onTouchTap={this.handleEdit(address._id)} label="查看/编辑" primary={true} /></TableRowColumn>

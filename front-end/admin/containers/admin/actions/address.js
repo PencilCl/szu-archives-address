@@ -69,11 +69,13 @@ export function filter_modified(event, isInputChecked) {
 	}
 }
 
-export function show_add_record() {
+let show_add_record = (clear = true) => {
 	return {
-		type: SHOW_ADD_RECORD
+		type: SHOW_ADD_RECORD,
+		clear: clear
 	}
 }
+exports.show_add_record = show_add_record;
 export function hide_add_record() {
 	return {
 		type:HIDE_ADD_RECORD
@@ -93,7 +95,7 @@ export function add_record() {
 	      "Content-type": "application/x-www-form-urlencoded; charset=UTF-8",
 	      token: token
 			},
-			body: `province=${form.province}&city=${form.city}&depart=${form.depart}&unit=${form.unit}&address=${form.address}&postcode=${form.postcode}`
+			body: `province=${form.province}&city=${form.city}&depart=${form.depart}&unit=${form.unit}&address=${form.address}&postcode=${form.postcode}&contact=${form.contact}`
 		}).then(response => {
 			if (response.ok) {
 				response.json().then(data => {
@@ -111,18 +113,22 @@ export function add_record() {
 								unit: form.unit,
 								address: form.address,
 								autoImport: false,
-								modified: false
+								modified: false,
+								contact: form.contact
 							}
 						});
 					} else {
 						dispatch(show_snackbar(data.error));
+						dispatch(show_add_record(false));
 					}
 				})
 			} else {
 				dispatch(show_snackbar("连接服务器失败"));
+				dispatch(show_add_record(false));		
 			}
 		}, err => {
 			dispatch(show_snackbar("连接服务器失败"));
+			dispatch(show_add_record(false));
 		})
 	}
 }
@@ -184,12 +190,14 @@ export function delete_record() {
 	}
 }
 
-export function show_edit_record(id) {
+let show_edit_record = (id, clear = true) => {
 	return {
 		type: SHOW_EDIT_RECORD,
-		data: id
+		data: id,
+		clear: clear
 	}
 }
+exports.show_edit_record = show_edit_record;
 export function hide_edit_record() {
 	return {
 		type: HIDE_EDIT_RECORD
@@ -218,7 +226,7 @@ export function edit_record() {
 	      "Content-type": "application/x-www-form-urlencoded; charset=UTF-8",
 	      token: token
 			},
-			body: `province=${form.province}&city=${form.city}&depart=${form.depart}&unit=${form.unit}&address=${form.address}&postcode=${form.postcode}`
+			body: `province=${form.province}&city=${form.city}&depart=${form.depart}&unit=${form.unit}&address=${form.address}&postcode=${form.postcode}&contact=${form.contact}`
 		}).then(response => {
 			if (response.ok) {
 				response.json().then(data => {
@@ -232,13 +240,16 @@ export function edit_record() {
 						});
 					} else {
 						dispatch(show_snackbar(data.error));
+						dispatch(show_edit_record(form._id, false));
 					}
 				})
 			} else {
 				dispatch(show_snackbar("连接服务器失败"));
+				dispatch(show_edit_record(form._id, false));
 			}
 		}, err => {
 			dispatch(show_snackbar("连接服务器失败"));
+			dispatch(show_edit_record(form._id, false));
 		})
 	}
 }

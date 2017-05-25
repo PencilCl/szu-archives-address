@@ -29,7 +29,8 @@ const initialState = {
 			depart: '',
 			unit: '',
 			address: '',
-			postcode: ''
+			postcode: '',
+			contact: ''
 		}
 	},
 	deleteRecord: {
@@ -45,7 +46,8 @@ const initialState = {
 			depart: '',
 			unit: '',
 			address: '',
-			postcode: ''
+			postcode: '',
+			contact: ''
 		}
 	},
 	addresses: [
@@ -119,9 +121,6 @@ let update_data = (state, data) => {
 		if (!tmp[address.province]) {
 			tmp[address.province] = true;
 			newState.province.items.push(address.province);
-			if (address.province == '') {
-				console.log(address);
-			}
 		}
 	})
 	return newState;
@@ -154,13 +153,15 @@ let delete_record = (state, id) => {
 	return newState;
 }
 
-let show_edit_record = (state, data) => {
+let show_edit_record = (state, data, clear) => {
 	let newState = generate_new_state(state);
 	newState.editRecord.show = true;
-	for (let i = 0; i < newState.addresses.length; ++i) {
-		if (newState.addresses[i]._id == data) {
-			newState.editRecord.form = newState.addresses[i];
-			break;
+	if (clear) {
+		for (let i = 0; i < newState.addresses.length; ++i) {
+			if (newState.addresses[i]._id == data) {
+				newState.editRecord.form = newState.addresses[i];
+				break;
+			}
 		}
 	}
 	return newState;
@@ -186,17 +187,20 @@ let edit_record = (state, data) => {
 	return newState;
 }
 
-let show_add_record = (state) => {
+let show_add_record = (state, clear) => {
 	let newState = generate_new_state(state);
 	let {province, city, depart} = newState;
 	newState.addRecord.show = true;
-	newState.addRecord.form = {
-		province: province.current == 0 ? '' : province.items[province.current],
-		city: city.current == 0 ? '' : city.items[city.current],
-		depart: depart.current == 0 ? '' : depart.items[depart.current],
-		unit: '',
-		address: '',
-		postcode: ''
+	if (clear) {
+		newState.addRecord.form = {
+			province: province.current == 0 ? '' : province.items[province.current],
+			city: city.current == 0 ? '' : city.items[city.current],
+			depart: depart.current == 0 ? '' : depart.items[depart.current],
+			unit: '',
+			address: '',
+			postcode: '',
+			contact: ''
+		}
 	}
 	return newState;
 }
@@ -255,13 +259,13 @@ export default function address (state = initialState, action) {
 		case ADD_RECORD:
 			return add_record(state, action.data)
 		case SHOW_ADD_RECORD:
-			return show_add_record(state)
+			return show_add_record(state, action.clear)
 		case HIDE_ADD_RECORD:
 			return hide_add_record(state)
 		case EDIT_RECORD:
 			return edit_record(state, action.data);
 		case SHOW_EDIT_RECORD:
-			return show_edit_record(state, action.data)
+			return show_edit_record(state, action.data, action.clear)
 		case HIDE_EDIT_RECORD:
 			return hide_edit_record(state)
 		case DELETE_RECORD: 
