@@ -3,7 +3,11 @@
 
 # 环境要求
 Nodejs v7.2.0
+
 Mongodb
+
+附：
+[ubuntu mongodb使用](http://pencilsky.cn/articles/59/)
 
 # 部署
 1. 下载项目
@@ -21,12 +25,13 @@ npm i
 ```
 3. 配置文件
 后端文件配置:
-进入src/文件夹，执行命令
+进入`src/`文件夹，执行命令
 ```
 cp config.js.example config.js
 ```
-对config.js文件相关信息进行设置
-进入front-end/admin文件夹,对config.js文件相关信息进行设置
+对`config.js`文件相关信息进行设置
+
+进入`front-end/admin`文件夹,对`config.js`文件相关信息进行设置
 
 4. 部署
 进入front-end/admin文件夹，执行命令
