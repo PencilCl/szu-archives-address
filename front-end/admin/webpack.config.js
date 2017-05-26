@@ -1,11 +1,14 @@
 var webpack = require('webpack')
 
 module.exports = {
-	entry: ['./index.js'],
+	entry: {
+		bundle: './index.js',
+		vendor: ['react', 'react-dom', 'react-router', 'redux', 'react-redux']
+	},
 
 	output: {
 		path: 'public',
-		filename: 'bundle.js',
+		filename: '[name].js',
 		publicPath: '/admin'
 	},
 
@@ -27,6 +30,7 @@ module.exports = {
 	],
 
 	plugins: [
-		new webpack.HotModuleReplacementPlugin()
+		new webpack.HotModuleReplacementPlugin(),
+		new webpack.optimize.CommonsChunkPlugin('vendor', 'vendor.js')
 	]
 }

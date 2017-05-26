@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "webpack -w",
-    "start:pro": "webpack",
+    "start:pro": "webpack -p",
     "start:dev": "webpack-dev-server --inline --content-base public/ --history-api-fallback"
   },
   "devDependencies": {

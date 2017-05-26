@@ -3,6 +3,7 @@
 import express from 'express'
 import path from 'path'
 import logger from 'morgan'
+import compress from 'compression'
 import apiRoutes from './routes/api'
 
 // 3rd middleware
@@ -22,6 +23,7 @@ process.on('uncaughtException', function (err) {
 var app = express();
 
 app.use(logger('dev'));
+app.use(compress());
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
 // static server

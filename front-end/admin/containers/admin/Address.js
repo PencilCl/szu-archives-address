@@ -9,12 +9,9 @@ import FlatButton from 'material-ui/FlatButton';
 import RefreshIcon from 'material-ui/svg-icons/navigation/refresh';
 import Dialog from 'material-ui/Dialog';
 import TextField from 'material-ui/TextField';
-import Toggle from 'material-ui/Toggle';
 import RaisedButton from 'material-ui/RaisedButton';
 import Popover from 'material-ui/Popover';
 import Menu from 'material-ui/Menu';
-import Paper from 'material-ui/Paper';
-import ArrowDropRight from 'material-ui/svg-icons/navigation-arrow-drop-right';
 
 import * as addressActions from './actions/address'
 
@@ -30,11 +27,6 @@ const styles = {
 		right: '5em',
 		bottom: '5em'
 	},
-	toggle: {
-		width: 'auto',
-		marginTop: '10px',
-		marginBottom: '10px'
-	},
 	operationButton: {
 		marginLeft: '10px'
 	},
@@ -42,10 +34,6 @@ const styles = {
     textAlign: 'right',
     display: 'block',
     marginTop: '15px'
-  },
-  menuPaper: {
-    display: 'inline-block',
-    margin: '16px 32px 16px 0'
   }
 }
 
