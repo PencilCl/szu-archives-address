@@ -25,6 +25,8 @@ const SHOW_ADD_RECORD = "SHOW_ADD_RECORD"
 const HIDE_ADD_RECORD = "HIDE_ADD_RECORD"
 const CHANGE_ADD_FORM_DATA = "CHANGE_ADD_FORM_DATA"
 
+const CHANGE_XLS = "CHANGE_XLS"
+
 const SHOW_SNACKBAR = "SHOW_SNACKBAR"
 let show_snackbar = (msg) => {
 	return {
@@ -55,17 +57,15 @@ export function changeDepart(event, index, value) {
 	}
 }
 
-export function filter_manual(event, isInputChecked) {
+export function filter_manual(event) {
 	return {
-		type: FILTER_MANUAL,
-		data: isInputChecked
+		type: FILTER_MANUAL
 	}
 }
 
-export function filter_modified(event, isInputChecked) {
+export function filter_modified(event) {
 	return {
-		type: FILTER_MODIFIED,
-		data: isInputChecked
+		type: FILTER_MODIFIED
 	}
 }
 
@@ -288,40 +288,127 @@ exports.fetch_address_data = () => {
 	}
 };
 
-export function upload_xls(e, fetch_address_data) {
+export function upload_xls(fetch_address_data) {
+	return (dispatch, getState) => {
+  	dispatch(show_snackbar("正在添加"));
+  	let token = window.localStorage.getItem('token');
+  	let formData = new FormData();
+  	formData.append('excel', getState().address.xlsFile);
+  	window.fetch(`${baseUrl}${addressUrl}/import`, {
+  		method: 'POST',
+  		headers: {
+  			"token": token
+  		},
+  		body: formData
+  	}).then(res => {
+  		if (res.ok) {
+  			res.json().then(data => {
+  				if (data.code != 10000) {
+  					dispatch(show_snackbar(data.error));
+  				} else {
+  					dispatch(show_snackbar("导入成功"));
+  					dispatch({
+  						type: CHANGE_XLS,
+  						data: null
+  					});
+  					fetch_address_data();
+  				}
+  			})
+  		} else {
+  			dispatch(show_snackbar("请求失败"));
+  		}
+  	}, err => {
+  		dispatch(show_snackbar("连接服务器失败"));
+  	})
+	}
+}
+
+export function change_xls(e) {
 	return (dispatch, getState) => {
 		let file = e.target.files[0];
 		e.target.value = "";
-    let supportedTypes = ['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'];
-    if (file && supportedTypes.indexOf(file.type) >= 0) {
-    	dispatch(show_snackbar("正在添加"));
-    	let token = window.localStorage.getItem('token');
-    	let formData = new FormData();
-    	formData.append('excel', file);
-    	window.fetch(`${baseUrl}${addressUrl}/import`, {
-    		method: 'POST',
-    		headers: {
-    			"token": token
-    		},
-    		body: formData
-    	}).then(res => {
-    		if (res.ok) {
-    			res.json().then(data => {
-    				if (data.code != 10000) {
-    					dispatch(show_snackbar(data.error));
-    				} else {
-    					dispatch(show_snackbar("导入成功"));
-    					fetch_address_data();
-    				}
-    			})
-    		} else {
-    			dispatch(show_snackbar("请求失败"));
-    		}
-    	}, err => {
-    		dispatch(show_snackbar("连接服务器失败"));
-    	})
-    } else {
-    	dispatch(show_snackbar("格式错误"));
-    }
+	  let supportedTypes = ['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'];
+	  if (file && supportedTypes.indexOf(file.type) >= 0) {
+			dispatch({
+				type: CHANGE_XLS,
+				data: file
+			});
+	  } else {
+	  	dispatch({
+	  		type: CHANGE_XLS,
+	  		data: null
+	  	});
+	  	dispatch(show_snackbar("格式错误"));
+	  }
+	}
+}
+
+/**
+ * 导出xls表格
+ */
+ var tmpDown; //导出的二进制对象;
+ function downloadExl(json, type) {
+   var keyMap = ["province", "city", "depart", "unit", "address", "contact", "postcode"];
+   var tmpdata = [];//用来保存转换好的json
+   json.map((v, i) => keyMap.map((k, j) => Object.assign({}, {
+       v: v[k],
+       position: (j > 25 ? getCharCol(j) : String.fromCharCode(65 + j)) + (i + 1)
+   }))).reduce((prev, next) => prev.concat(next)).forEach((v, i) => tmpdata[v.position] = {
+       v: v.v
+   });
+   var outputPos = Object.keys(tmpdata); //设置区域,比如表格从A1到D10
+   var tmpWB = {
+       SheetNames: ['mySheet'], //保存的表标题
+       Sheets: {
+         'mySheet': Object.assign({},
+             tmpdata, //内容
+             {
+               '!ref': outputPos[0] + ':' + outputPos[outputPos.length - 1] //设置填充区域
+             })
+       }
+   };
+   tmpDown = new Blob([s2ab(XLSX.write(tmpWB, 
+       {bookType: (type == undefined ? 'xlsx':type),bookSST: false, type: 'binary'}//这里的数据是用来定义导出的格式类型
+       ))], {
+       type: ""
+   }); //创建二进制对象写入转换好的字节流
+   var href = URL.createObjectURL(tmpDown); //创建对象超链接
+   document.getElementById("hf").href = href; //绑定a标签
+   document.getElementById("hf").click(); //模拟点击实现下载
+   setTimeout(function() { //延时释放
+       URL.revokeObjectURL(tmpDown); //用URL.revokeObjectURL()来释放这个object URL
+   }, 100);
+}
+function s2ab(s) { //字符串转字符流
+  var buf = new ArrayBuffer(s.length);
+  var view = new Uint8Array(buf);
+  for(var i = 0; i != s.length; ++i) view[i] = s.charCodeAt(i) & 0xFF;
+  return buf;
+}
+// 将指定的自然数转换为26进制表示。映射关系：[0-25] -> [A-Z]。
+function getCharCol(n) {
+  let temCol = '',
+      s = '',
+      m = 0
+  while(n > 0) {
+    m = n % 26 + 1
+    s = String.fromCharCode(m + 64) + s
+    n = (n - m) / 26
+  }
+  return s
+}
+export function export_xls(tableData) {
+	tableData.splice(0, 0, {
+		province: "省份",
+		city: "地区",
+		depart: "派遣单位主管部门",
+		unit: "派遣单位名称",
+		address: "派遣单位地址",
+		contact: "派遣单位办公电话",
+		postcode: "派遣单位邮编"
+	});
+	downloadExl(tableData);
+	return {
+		type: null
 	}
 }

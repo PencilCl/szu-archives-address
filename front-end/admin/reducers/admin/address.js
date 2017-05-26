@@ -51,7 +51,8 @@ const initialState = {
 		}
 	},
 	addresses: [
-	]
+	],
+	xlsFile: null
 }
 
 let generate_new_state = (state) => {
@@ -100,15 +101,15 @@ let change_depart = (state, value) => {
 	return newState;
 }
 
-let filter_manual = (state, value) => {
+let filter_manual = (state) => {
 	let newState = generate_new_state(state);
-	newState.filterManual = value;
+	newState.filterManual = !newState.filterManual;
 	return newState;
 }
 
-let filter_modified = (state, value) => {
+let filter_modified = (state) => {
 	let newState = generate_new_state(state);
-	newState.filterModified = value;
+	newState.filterModified = !newState.filterModified;
 	return newState;
 }
 
@@ -220,6 +221,12 @@ let add_record = (state, data) => {
 	return newState;
 }
 
+let change_xls = (state, data) => {
+	let newState = generate_new_state(state);
+	newState.xlsFile = data;
+	return newState;
+}
+
 const CHANGE_PROVINCE = "CHANGE_PROVINCE"
 const CHANGE_CITY = "CHANGE_CITY"
 const CHANGE_DEPART = "CHANGE_DEPART"
@@ -242,6 +249,8 @@ const SHOW_ADD_RECORD = "SHOW_ADD_RECORD"
 const HIDE_ADD_RECORD = "HIDE_ADD_RECORD"
 const CHANGE_ADD_FORM_DATA = "CHANGE_ADD_FORM_DATA"
 
+const CHANGE_XLS = "CHANGE_XLS"
+
 export default function address (state = initialState, action) {
 	switch (action.type) {
 		case CHANGE_PROVINCE:
@@ -251,9 +260,9 @@ export default function address (state = initialState, action) {
 		case CHANGE_DEPART:
 			return change_depart(state, action.data)
 		case FILTER_MANUAL:
-			return filter_manual(state, action.data)
+			return filter_manual(state)
 		case FILTER_MODIFIED:
-			return filter_modified(state, action.data)
+			return filter_modified(state)
 		case UPDATE_DATA:
 			return update_data(state, action.data)
 		case ADD_RECORD:
@@ -278,6 +287,8 @@ export default function address (state = initialState, action) {
 			return change_edit_form_data(state, action.data)
 		case CHANGE_ADD_FORM_DATA:
 			return change_add_form_data(state, action.data)
+		case CHANGE_XLS:
+			return change_xls(state, action.data)
 		default:
 			return state
 	}
