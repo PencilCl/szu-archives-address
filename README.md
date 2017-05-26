@@ -27,6 +27,7 @@ cp config.js.example config.js
 ```
 对config.js文件相关信息进行设置
 进入front-end/admin文件夹,对config.js文件相关信息进行设置
+
 4. 部署
 进入front-end/admin文件夹，执行命令
 ```
