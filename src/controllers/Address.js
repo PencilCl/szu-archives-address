@@ -62,21 +62,56 @@ exports.import = (req, res, next) => {
   	// 处理excel文件数据
   	let xmlData = xlsx.parse(tmpPath);
   	let sheet1 = xmlData[0].data;
+  	if (sheet1.length < 1) {
+  		return res.json({code: 10200, error: '导入文件为空'});
+  	}
   	// 第一行为表头信息，从第二行开始获取数据
-  	// 省份	地区	派遣单位主管部门	派遣单位名称	派遣单位地址	派遣单位邮编
+  	// 省份	地区	派遣单位主管部门	派遣单位名称	派遣单位地址 派遣单位办公电话	派遣单位邮编
+  	let fieldIndex = {
+  		province: sheet1[0].indexOf("省份"),
+  		city: sheet1[0].indexOf("地区"),
+  		depart: sheet1[0].indexOf("派遣单位主管部门"),
+  		unit: sheet1[0].indexOf("派遣单位名称"),
+  		address: sheet1[0].indexOf("派遣单位地址"),
+  		contact: sheet1[0].indexOf("派遣单位办公电话"),
+  		postcode: sheet1[0].indexOf("派遣单位邮编")
+  	}
+
+  	if (fieldIndex.province == -1) {
+  		return res.json({code: 10200, error: '导入文件格式错误:找不到"省份"信息'});
+  	}
+  	if (fieldIndex.city == -1) {
+  		return res.json({code: 10200, error: '导入文件格式错误:找不到"地区"信息'});
+  	}
+  	if (fieldIndex.depart == -1) {
+  		return res.json({code: 10200, error: '导入文件格式错误:找不到"派遣单位主管部门"信息'});
+  	}
+  	if (fieldIndex.unit == -1) {
+  		return res.json({code: 10200, error: '导入文件格式错误:找不到"派遣单位名称"信息'});
+  	}
+  	if (fieldIndex.address == -1) {
+  		return res.json({code: 10200, error: '导入文件格式错误:找不到"派遣单位地址"信息'});
+  	}
+  	if (fieldIndex.contact == -1) {
+  		return res.json({code: 10200, error: '导入文件格式错误:找不到"派遣单位办公电话"信息'});
+  	}
+  	if (fieldIndex.postcode == -1) {
+  		return res.json({code: 10200, error: '导入文件格式错误:找不到"派遣单位邮编"信息'});
+  	}
+
   	for (let i = 1; i < sheet1.length; ++i) {
 			let data = sheet1[i];
 			if (data[0] == '') {
 				continue;
 			}
 			let objAddress = new Address();
-			objAddress.province = data[0];
-			objAddress.city = data[1];
-			objAddress.depart = data[2];
-			objAddress.unit = data[3];
-			objAddress.address = data[4];
-			objAddress.postcode = data[5] ? data[5] : "";
-			objAddress.contact = data[6] ? data[6] : "";
+			objAddress.province = data[fieldIndex.province];
+			objAddress.city = data[fieldIndex.city];
+			objAddress.depart = data[fieldIndex.depart];
+			objAddress.unit = data[fieldIndex.unit];
+			objAddress.address = data[fieldIndex.address];
+			objAddress.contact = data[fieldIndex.contact] ? data[fieldIndex.contact] : "";
+			objAddress.postcode = data[fieldIndex.postcode] ? data[fieldIndex.postcode] : "";
 			objAddress.save((err) => {});
   	}
   	res.json({code: 10000, error: ''});

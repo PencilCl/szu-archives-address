@@ -19,8 +19,8 @@ router.route('/address/address/:depart')
 	.get(Address.address)
 
 // admin
-router.route('/register')
-	.post(User.save)
+// router.route('/register')
+	// .post(User.save)
 router.route('/login')
 	.post(Authentication.login)
 router.route('/logout')

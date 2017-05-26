@@ -33,12 +33,10 @@ let AddressSchema = new Schema({
 		default: false
 	},
 	createAt: {
-		type: Date,
-		default: Date.now()
+		type: Date
 	},
 	updateAt: {
-		type: Date,
-		default: Date.now()
+		type: Date
 	}
 })
 
