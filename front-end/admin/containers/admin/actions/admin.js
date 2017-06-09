@@ -5,6 +5,10 @@ import {
 	logoutUrl
 } from './../../../config.js'
 
+import 'whatwg-fetch'
+
+window.fetch = fetch
+
 const LOGIN = "LOGIN"
 const LOGIN_FINISH = "LOGIN_FINISH"
 const LOGOUT = "LOGOUT"

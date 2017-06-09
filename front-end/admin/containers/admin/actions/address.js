@@ -3,6 +3,10 @@ import {
 	addressUrl
 } from './../../../config.js'
 
+import 'whatwg-fetch'
+
+window.fetch = fetch
+
 const CHANGE_PROVINCE = "CHANGE_PROVINCE"
 const CHANGE_CITY = "CHANGE_CITY"
 const CHANGE_DEPART = "CHANGE_DEPART"
